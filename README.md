@@ -10,7 +10,8 @@ Your personal relaxation companion - a mood-based relaxation experience generato
 - **Database**: PostgreSQL (Neon)
 - **ORM**: Prisma
 - **Testing**: Vitest + @testing-library/react
-- **Auth**: NextAuth.js (Google OAuth)
+- **Auth**: NextAuth.js (Magic Link via Resend)
+- **Email**: Resend
 - **Monitoring**: Sentry
 - **Deployment**: Vercel
 
@@ -35,9 +36,9 @@ cd CalmSync
 pnpm install
 ```
 
-3. Follow the detailed setup instructions in [SETUP.md](./SETUP.md) to:
+3. Follow the detailed setup instructions in [MAGIC_LINK_SETUP.md](./MAGIC_LINK_SETUP.md) to:
    - Configure your PostgreSQL database (Neon recommended)
-   - Set up Google OAuth credentials
+   - Set up Resend for magic link emails
    - Configure environment variables
    - Run database migrations
 
