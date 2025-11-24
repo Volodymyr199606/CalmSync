@@ -1,0 +1,112 @@
+---
+alwaysApply: true
+---
+
+## 1. Tech Stack
+
+- Frontend: Next.js 16+ (App Router) with strict TypeScript and React hooks.
+- Styling/UI: Tailwind CSS v4 plus shadcn/ui primitives; no alternative UI kits.
+- Tooling: ESLint v9 is the linting baseline.
+- Backend: Next.js route handlers only; Prisma is the sole ORM; 
+- Database: PostgreSQL only, hosted on Neon (no other DB providers). Use the Neon-provided `DATABASE_URL` in `.env.local`.
+- Testing: Vitest with @testing-library/react for frontend and utility coverage.
+- Auth: Prefer Auth.js (NextAuth) in route handlers; fallback JWT must use HTTP-only cookies and never touch localStorage.
+- Infra: GitHub for version control, Vercel for deployment (frontend + API), Sentry for monitoring.
+- Do not introduce other frameworks (e.g., Express, FastAPI) unless explicitly approved.
+
+## 2. Architecture & Project Structure
+
+- Keep the Next.js structure predictable and centered around `app/`.
+- Place API handlers in `app/api/**/route.ts`; default to Server Components and mark Client Components only when necessary.
+- Store reusable UI in `components/` and shadcn primitives in `components/ui/`.
+- House shared utilities within `lib/` (prisma, auth, validation, utils), reusable hooks in `hooks/`, shared contracts in `types/`, and consistent test placement in `tests/` or `__tests__/`.
+- Keep files short (~200–300 lines max) and extract logic when they grow.
+- Encapsulate domain logic into small, composable modules; avoid god components or services.
+- Prevent circular dependencies and deep relative imports; lean on path aliases.
+
+## 3. TypeScript & Code Style
+
+- Enable strict TypeScript everywhere and avoid `any`; prefer `unknown`, zod-validated shapes, or precise interfaces.
+- Favor `const`, React function components, hooks, and arrow functions for small utilities.
+- Prefer named exports, reserving default exports for idiomatic Next.js routes/pages.
+- Order imports as core libs → third-party → internal modules; remove unused imports or variables immediately.
+- Strongly type API handlers, Prisma models, DTOs, and auth/session objects.
+
+## 4. UI Implementation Rules
+
+- Compose UI with shadcn/ui primitives and Tailwind for layout, spacing, typography, and simple states.
+- Build semantic components (PageShell, Card, NavBar, etc.) instead of sprawling inline markup.
+- Enforce accessibility: semantic HTML, aria attributes, labels, and focus-visible styles.
+- Avoid inline complex styles when a reusable class or component fits better.
+- Keep JSX readable and avoid deeply nested structures or unreadable Tailwind chains.
+
+### Responsive design / mobile support
+
+- The design must be fully responsive across mobile, tablet, and desktop.
+- Use mobile-first layout by default; all components must render correctly on small screens (360–430px width).
+- Use Tailwind responsive utilities (sm, md, lg, xl) instead of fixed pixel widths.
+- On small screens:
+  - Use a single-column layout for all content (dashboard, mood form, experience view).
+  - Avoid horizontal scrolling entirely.
+  - Ensure buttons, sliders, and inputs have touch-friendly sizes and spacing.
+- On medium and larger screens:
+  - Two-column or grid-based layouts are allowed (e.g., mood form + experience side by side).
+- Test UI in browser devtools mobile viewport before marking a page complete.
+
+## 5. Backend, Prisma & PostgreSQL
+
+- Maintain a single Prisma client instance (e.g., `lib/prisma.ts`) with proper Next.js connection handling.
+- Apply schema changes through `prisma migrate`; never rely on ad-hoc SQL.
+- Use clear model names and consistent relationships (User, Session, Post, etc.).
+- Within route handlers: validate input, enforce auth/permissions, return typed responses, and log meaningful error context.
+- Block direct DB access from Client Components and avoid raw SQL unless absolutely justified.
+
+## 6. Auth Rules
+
+- Default to Auth.js (NextAuth) with credentials or OAuth providers as needed.
+- Sessions must use secure HTTP-only cookies; never store tokens in localStorage.
+- For custom JWT flows, implement `/api/auth/login`, `/api/auth/logout`, and `/api/auth/refresh` with bcrypt (or similar) hashing and minimal error responses.
+- Use middleware to protect private routes and prevent secret exposure.
+- Never log full tokens or passwords.
+
+## 7. Testing Guidelines
+
+- Use Vitest for unit/integration tests and @testing-library/react for components.
+- Test behavior via role/label/text queries; avoid implementation detail assertions.
+- Cover core shared components, critical flows (auth, forms, mutations), utilities, and data mappers.
+
+## 8. Observability & DevEx
+
+- Integrate Sentry for API route errors and key client-side surfaces.
+- Add purposeful server logging for auth failures, DB errors, and unexpected states.
+- Keep git commits small, descriptive, and accompanied by lint/test runs before merging.
+
+## 9. AI / Cursor Behavior
+
+- Follow the mandated stack and never suggest alternative frameworks without approval.
+- Produce clear, commented, production-ready code using idiomatic Next.js App Router patterns.
+- Maintain strong typing, narrow scopes, and keep types, API routes, Prisma schema, and UI in sync when adding features.
+- Preserve behavior during refactors while improving readability, performance, and testability.
+- Do not generate placeholder or fake artifacts (e.g., bogus secrets, irrelevant files).
+
+## 10. Code Review Checklist
+
+- Data flow is clear/documented and new patterns are explained.
+- No regressions or infrastructure risks (Vercel config, env vars, etc.).
+- UI covers empty, loading, error, and offline states.
+- Accessibility is verified: keyboard navigation, focus management, ARIA roles, color contrast.
+- Public APIs remain backward compatible.
+- No unnecessary dependencies; prefer lighter alternatives.
+- Tests (Vitest/@testing-library) are added or updated for new behavior.
+- Prisma schema changes are validated and migrated.
+- Auth and permission updates undergo security review.
+- i18n strings are localized when applicable, and caching is considered where appropriate.
+- Logging and Sentry monitoring exist for new backend routes.
+
+## 11. Project Behavior Summary
+
+- Google OAuth only (no passwords).
+- User selects feeling (stress/anxiety/depression/frustration) and severity 1–10.
+- Backend saves mood check-in and generates a relaxation experience using curated, commercially-safe content sources (music, nature videos, sounds, images, text).
+- Experience includes primary content (music or nature video), optional nature sounds, calming text prompts, and a breathing animation.
+- App shows a safety notice and is not a substitute for professional help.
