@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,5 +10,135 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Initial models will be added in Phase 1
+// Enums
+enum FeelingType {
+  STRESS
+  ANXIETY
+  DEPRESSION
+  FRUSTRATION
+}
+
+enum ContentType {
+  MUSIC
+  NATURE_VIDEO
+  NATURE_SOUND
+  IMAGE
+  TEXT
+  BREATHING_ANIMATION
+}
+
+// Models
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts           Account[]
+  sessions           Session[]
+  moodCheckIns       MoodCheckIn[]
+  relaxationSessions RelaxationSession[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model MoodCheckIn {
+  id             String      @id @default(cuid())
+  userId         String
+  feeling        FeelingType
+  severity       Int // 1-10
+  createdAt      DateTime    @default(now())
+
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  relaxationSessions RelaxationSession[]
+
+  @@map("mood_check_ins")
+}
+
+model ContentItem {
+  id          String      @id @default(cuid())
+  type        ContentType
+  title       String
+  url         String?
+  content     String? @db.Text
+  description String? @db.Text
+  feeling     FeelingType
+  tags        String[] // For categorization
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  sessionItems SessionItem[]
+
+  @@map("content_items")
+}
+
+model RelaxationSession {
+  id            String   @id @default(cuid())
+  userId        String
+  moodCheckInId String
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+  durationSec   Int? // Duration in seconds
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  moodCheckIn  MoodCheckIn   @relation(fields: [moodCheckInId], references: [id], onDelete: Cascade)
+  sessionItems SessionItem[]
+
+  @@map("relaxation_sessions")
+}
+
+model SessionItem {
+  id                  String   @id @default(cuid())
+  relaxationSessionId String
+  contentItemId       String
+  orderIndex          Int // Order in which content is presented
+  createdAt           DateTime @default(now())
+
+  relaxationSession RelaxationSession @relation(fields: [relaxationSessionId], references: [id], onDelete: Cascade)
+  contentItem       ContentItem       @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+
+  @@map("session_items")
+}
 

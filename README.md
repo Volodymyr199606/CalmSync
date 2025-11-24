@@ -35,20 +35,13 @@ cd CalmSync
 pnpm install
 ```
 
-3. Set up environment variables:
-```bash
-cp env.example .env.local
-```
+3. Follow the detailed setup instructions in [SETUP.md](./SETUP.md) to:
+   - Configure your PostgreSQL database (Neon recommended)
+   - Set up Google OAuth credentials
+   - Configure environment variables
+   - Run database migrations
 
-Edit `.env.local` with your actual values.
-
-4. Set up the database:
-```bash
-pnpm prisma:migrate
-pnpm prisma:generate
-```
-
-5. Run the development server:
+4. Run the development server:
 ```bash
 pnpm dev
 ```
