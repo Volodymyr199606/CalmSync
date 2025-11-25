@@ -1,8 +1,8 @@
 # Getting Started with CalmSync - Magic Link Authentication
 
-## ✅ What's Been Implemented
+## ✅ What's Implemented
 
-CalmSync now uses **passwordless magic link authentication** instead of Google OAuth. Here's what changed:
+CalmSync uses **passwordless magic link authentication** via Resend. Here's how it works:
 
 ### Authentication Flow
 
@@ -36,11 +36,11 @@ Your `.env.local` should already exist. Open it and update these values:
 # Database
 DATABASE_URL="postgresql://user:pass@host.region.neon.tech/calmsync?sslmode=require"
 
-# NextAuth - Use the secret you generated earlier
-NEXTAUTH_SECRET="AKQRkJWyvbulmDtBX9YF1cEzpOG20x37"
+# NextAuth
+NEXTAUTH_SECRET="your-super-secret-32-character-minimum-string"
 NEXTAUTH_URL="http://localhost:3000"
 
-# Resend Email (Add these new lines)
+# Resend Email
 RESEND_API_KEY="re_your_actual_api_key_here"
 EMAIL_FROM="onboarding@resend.dev"
 ```
@@ -100,9 +100,9 @@ The magic link email:
 
 ## 📚 Documentation
 
-- **Complete Setup Guide**: [MAGIC_LINK_SETUP.md](./MAGIC_LINK_SETUP.md)
+- **Complete Setup Guide**: [QUICKSTART.md](./QUICKSTART.md)
 - **Project Rules**: [project.mdc](./project.mdc)
-- **Quick Reference**: [QUICKSTART.md](./QUICKSTART.md)
+- **Google OAuth Alternative**: [GOOGLE_OAUTH_SETUP.md](./GOOGLE_OAUTH_SETUP.md)
 
 ---
 
@@ -118,14 +118,9 @@ With authentication working, you can now proceed to Phase 2 which will add:
 
 ---
 
-## 📝 Summary of Changes
+## 📝 Summary
 
-**Removed:**
-- ❌ Google OAuth
-- ❌ Need for Google Cloud Console setup
-- ❌ OAuth consent screen configuration
-
-**Added:**
+**Authentication Method:**
 - ✅ Magic link email authentication
 - ✅ Resend integration
 - ✅ Beautiful email templates
@@ -135,7 +130,7 @@ With authentication working, you can now proceed to Phase 2 which will add:
 **Benefits:**
 - 🚀 Simpler setup (no OAuth configuration)
 - 🔐 More secure (no password storage)
-- 📧 Better UX (one-click sign-in after first time)
+- 📧 Better UX (one-click sign-in)
 - 💰 Free tier is generous (100 emails/day)
 
 ---
@@ -152,5 +147,5 @@ You can test the magic link flow and then proceed to **Phase 2**!
 
 ---
 
-Need help? Check [MAGIC_LINK_SETUP.md](./MAGIC_LINK_SETUP.md) for detailed troubleshooting.
+Need help? Check [QUICKSTART.md](./QUICKSTART.md) for detailed troubleshooting.
 

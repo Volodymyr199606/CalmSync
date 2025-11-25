@@ -36,7 +36,7 @@ cd CalmSync
 pnpm install
 ```
 
-3. Follow the detailed setup instructions in [MAGIC_LINK_SETUP.md](./MAGIC_LINK_SETUP.md) to:
+3. Follow the detailed setup instructions in [QUICKSTART.md](./QUICKSTART.md) to:
    - Configure your PostgreSQL database (Neon recommended)
    - Set up Resend for magic link emails
    - Configure environment variables

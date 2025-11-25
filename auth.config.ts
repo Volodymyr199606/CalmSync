@@ -16,14 +16,13 @@ export const authConfig: NextAuthConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
-      const isVerifyRequest = nextUrl.pathname === "/verify-request";
       
       if (isOnDashboard) {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
-      } else if (isLoggedIn && !isVerifyRequest) {
-        return Response.redirect(new URL("/dashboard", nextUrl));
       }
+      
+      // Allow all other requests - middleware handles logged-in user redirects
       return true;
     },
   },

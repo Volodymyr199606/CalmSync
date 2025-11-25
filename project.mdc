@@ -103,7 +103,7 @@
 
 ## 11. Project Behavior Summary
 
-- **Magic Link authentication** - passwordless email authentication via Resend.
+- Magic Link authentication only (passwordless email via Resend, no passwords).
 - User selects feeling (stress/anxiety/depression/frustration) and severity 1–10.
 - Backend saves mood check-in and generates a relaxation experience using curated, commercially-safe content sources (music, nature videos, sounds, images, text).
 - Experience includes primary content (music or nature video), optional nature sounds, calming text prompts, and a breathing animation.
