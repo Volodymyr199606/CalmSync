@@ -77,6 +77,21 @@ describe("Relaxation Engine", () => {
         expect(output.primaryType).toBeDefined();
       });
     });
+
+    it("adds ambient nature sound when severity is medium or higher", () => {
+      const input: EngineInput = {
+        feeling: "STRESS",
+        severity: 6,
+      };
+
+      const output = generateRelaxationExperience(input);
+
+      const hasNatureSound = output.items.some(
+        (item) => item.type === "NATURE_SOUND"
+      );
+
+      expect(hasNatureSound).toBe(true);
+    });
   });
 
   describe("getBreathingExercise", () => {
@@ -153,6 +168,11 @@ describe("Relaxation Engine", () => {
       };
 
       expect(validateEngineInput(input)).toBe(false);
+    });
+
+    it("should reject non-object payloads", () => {
+      expect(validateEngineInput(null)).toBe(false);
+      expect(validateEngineInput("not-an-object")).toBe(false);
     });
 
     it("should accept optional userId", () => {

@@ -6,7 +6,7 @@
  * Submits to /api/mood then fetches experience from /api/experience
  */
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,6 +35,14 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const intensityLabelId = useId();
+
+  const handleFeelingSelect = (feeling: Feeling) => {
+    setSelectedFeeling(feeling);
+    if (error) {
+      setError(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,7 +130,7 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
               <button
                 key={feeling.value}
                 type="button"
-                onClick={() => setSelectedFeeling(feeling.value)}
+                onClick={() => handleFeelingSelect(feeling.value)}
                 className={`
                   flex flex-col items-center justify-center rounded-lg border-2 p-3 transition-all sm:p-4
                   ${selectedFeeling === feeling.value 
@@ -143,7 +151,7 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
         {/* Severity slider */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <label className="block text-sm font-medium text-gray-700">
+            <label id={intensityLabelId} className="block text-sm font-medium text-gray-700">
               Intensity level
             </label>
             <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-900">
@@ -151,6 +159,8 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
             </span>
           </div>
           <Slider
+            aria-label="Intensity level"
+            aria-labelledby={intensityLabelId}
             value={[severity]}
             onValueChange={(values) => setSeverity(values[0])}
             min={1}
@@ -191,7 +201,7 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
         {/* Submit button */}
         <Button
           type="submit"
-          disabled={!selectedFeeling || isSubmitting}
+          disabled={isSubmitting}
           className="w-full"
           size="lg"
         >
