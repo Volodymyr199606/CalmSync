@@ -21,7 +21,16 @@ export const ContentTypeSchema = z.enum([
   "BREATHING_ANIMATION",
 ]);
 
-// Mood check-in creation input
+// Mood check-in creation input (for API)
+export const moodCheckInSchema = z.object({
+  feeling: FeelingSchema,
+  severity: SeveritySchema,
+  notes: z.string().max(1000, "Notes must be 1000 characters or less").optional(),
+});
+
+export type MoodCheckInInput = z.infer<typeof moodCheckInSchema>;
+
+// Legacy mood check-in creation input (with userId)
 export const CreateMoodCheckInInputSchema = z.object({
   userId: z.string().min(1, "User ID is required"),
   feeling: FeelingSchema,

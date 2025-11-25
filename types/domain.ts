@@ -22,10 +22,20 @@ export interface EngineInput {
 // Output from the relaxation engine
 export interface EngineOutput {
   primaryType: "MUSIC" | "NATURE_VIDEO";
-  items: ContentItem[];
-  textPrompts: string[];
+  items: ContentItem[]; // All content items for this session
+  textPrompts: string[]; // Calming text prompts
   includeBreathingAnimation: boolean;
   sessionDurationMinutes: number;
+}
+
+// Simpler structure for API response items
+export interface ExperienceContentItem {
+  contentType: ContentType;
+  contentId: string;
+  title: string;
+  url?: string;
+  description?: string;
+  duration?: number; // Duration in seconds
 }
 
 // Content item from the library
@@ -57,7 +67,8 @@ export interface MoodCheckIn {
   id: string;
   userId: string;
   feeling: Feeling;
-  severity: SeverityLevel;
+  severity: number; // 1-10
+  notes?: string | null;
   createdAt: Date;
 }
 
@@ -65,11 +76,26 @@ export interface MoodCheckIn {
 export interface RelaxationSession {
   id: string;
   userId: string;
-  moodCheckInId: string;
-  startedAt: Date;
-  completedAt?: Date;
-  durationSec?: number;
-  contentItems: ContentItem[];
+  moodCheckInId?: string | null;
+  feeling: Feeling;
+  severity: number; // 1-10
+  primaryContentType: ContentType;
+  durationMinutes: number;
+  completedAt?: Date | null;
+  createdAt: Date;
+}
+
+// Session item data (content in a session)
+export interface SessionItem {
+  id: string;
+  sessionId: string;
+  contentType: ContentType;
+  contentId: string;
+  title: string;
+  url?: string | null;
+  description?: string | null;
+  duration?: number | null; // Duration in seconds
+  orderIndex: number;
 }
 
 // Session creation input

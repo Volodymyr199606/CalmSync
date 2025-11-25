@@ -89,6 +89,7 @@ model MoodCheckIn {
   userId         String
   feeling        FeelingType
   severity       Int // 1-10
+  notes          String? @db.Text // Optional user notes
   createdAt      DateTime    @default(now())
 
   user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -115,15 +116,19 @@ model ContentItem {
 }
 
 model RelaxationSession {
-  id            String   @id @default(cuid())
-  userId        String
-  moodCheckInId String
-  startedAt     DateTime @default(now())
-  completedAt   DateTime?
-  durationSec   Int? // Duration in seconds
+  id                 String      @id @default(cuid())
+  userId             String
+  moodCheckInId      String?     // Optional - can create session without mood check-in
+  feeling            FeelingType // Stored for quick access
+  severity           Int         // 1-10, stored for analytics
+  primaryContentType ContentType // Primary content type used
+  durationMinutes    Int         // Planned duration in minutes
+  startedAt          DateTime    @default(now())
+  completedAt        DateTime?
+  durationSec        Int?        // Actual duration in seconds
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  moodCheckIn  MoodCheckIn   @relation(fields: [moodCheckInId], references: [id], onDelete: Cascade)
+  moodCheckIn  MoodCheckIn?  @relation(fields: [moodCheckInId], references: [id], onDelete: Cascade)
   sessionItems SessionItem[]
 
   @@map("relaxation_sessions")
