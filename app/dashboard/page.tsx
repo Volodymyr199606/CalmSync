@@ -1,98 +1,91 @@
-import { auth, signOut } from "../../auth";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { redirect } from "next/navigation";
+/**
+ * Dashboard Page - Main user dashboard
+ * Server component that loads user data and last session
+ * Renders mood check-in form and experience view
+ */
+
+import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
+import { redirect } from 'next/navigation';
+import { DashboardClient } from './DashboardClient';
 
 export default async function DashboardPage() {
+  // 1. Authenticate user
   const session = await auth();
 
-  if (!session?.user) {
-    redirect("/");
+  if (!session?.user?.email) {
+    redirect('/api/auth/signin');
   }
 
+  // 2. Load user from database
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+    },
+  });
+
+  if (!user) {
+    redirect('/api/auth/signin');
+  }
+
+  // 3. Optionally load last relaxation session
+  let lastSession = null;
+  let lastSessionItems = null;
+
+  try {
+    const recentSession = await prisma.relaxationSession.findFirst({
+      where: { userId: user.id },
+      orderBy: { startedAt: 'desc' },
+      include: {
+        sessionItems: {
+          include: {
+            contentItem: true,
+          },
+          orderBy: { orderIndex: 'asc' },
+        },
+      },
+    });
+
+    if (recentSession) {
+      // Transform to match expected types
+      lastSession = {
+        id: recentSession.id,
+        userId: recentSession.userId,
+        moodCheckInId: recentSession.moodCheckInId,
+        feeling: recentSession.feeling as 'STRESS' | 'ANXIETY' | 'DEPRESSION' | 'FRUSTRATION',
+        severity: recentSession.severity,
+        primaryContentType: recentSession.primaryContentType,
+        durationMinutes: recentSession.durationMinutes,
+        completedAt: recentSession.completedAt,
+        createdAt: recentSession.startedAt,
+      };
+
+      lastSessionItems = recentSession.sessionItems.map((item) => ({
+        id: item.id,
+        sessionId: recentSession.id,
+        contentType: item.contentItem.type,
+        contentId: item.contentItem.id,
+        title: item.contentItem.title,
+        url: item.contentItem.url,
+        description: item.contentItem.description,
+        duration: null, // Duration is not stored in ContentItem
+        orderIndex: item.orderIndex,
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to load last session:', error);
+    // Continue without last session
+  }
+
+  // 4. Render client component with server data
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">CalmSync</h1>
-          <div className="flex items-center gap-4">
-            {session.user.image && (
-              <img
-                src={session.user.image}
-                alt={session.user.name || "User"}
-                className="h-8 w-8 rounded-full"
-              />
-            )}
-            <span className="text-sm text-muted-foreground hidden sm:inline">
-              {session.user.name || session.user.email}
-            </span>
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ redirectTo: "/" });
-              }}
-            >
-              <Button type="submit" variant="outline" size="sm">
-                Sign Out
-              </Button>
-            </form>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold mb-6">Welcome back!</h2>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Dashboard</CardTitle>
-              <CardDescription>
-                Your personalized relaxation dashboard
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="rounded-lg border p-4">
-                  <h3 className="font-semibold mb-2">Get Started</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    How are you feeling today? Let us create a personalized
-                    relaxation experience for you.
-                  </p>
-                  <Button disabled>
-                    Start Mood Check-In
-                    <span className="ml-2 text-xs">(Coming in Phase 2)</span>
-                  </Button>
-                </div>
-
-                <div className="rounded-lg border p-4">
-                  <h3 className="font-semibold mb-2">Your Profile</h3>
-                  <div className="space-y-2 text-sm">
-                    <p>
-                      <span className="font-medium">Name:</span> {session.user.name || "N/A"}
-                    </p>
-                    <p>
-                      <span className="font-medium">Email:</span> {session.user.email}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-lg border border-yellow-500/50 bg-yellow-500/10 p-4">
-                  <h3 className="font-semibold mb-2 text-yellow-700 dark:text-yellow-500">
-                    ⚠️ Safety Notice
-                  </h3>
-                  <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                    CalmSync is not a substitute for professional mental health care.
-                    If you&apos;re experiencing a crisis, please contact a mental health
-                    professional or emergency services immediately.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
-    </div>
+    <DashboardClient
+      user={user}
+      initialSession={lastSession}
+      initialItems={lastSessionItems || []}
+    />
   );
 }
-
