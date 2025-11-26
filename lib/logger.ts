@@ -1,7 +1,10 @@
 /**
  * Server-side logging utility
  * Provides structured logging with context for API routes and server-side operations
+ * Integrates with Sentry for error tracking and monitoring
  */
+
+import * as Sentry from '@sentry/nextjs';
 
 type LogLevel = 'info' | 'warn' | 'error' | 'debug';
 
@@ -11,6 +14,7 @@ interface LogContext {
 
 /**
  * Core logger function that formats and outputs log messages
+ * Errors and warnings are automatically sent to Sentry in production
  */
 function log(level: LogLevel, message: string, context?: LogContext): void {
   const timestamp = new Date().toISOString();
@@ -21,16 +25,26 @@ function log(level: LogLevel, message: string, context?: LogContext): void {
     ...(context && { context }),
   };
 
-  // In production, this could be sent to a logging service (e.g., Sentry, DataDog)
-  // For now, we use console with proper formatting
   const logString = JSON.stringify(logData);
 
   switch (level) {
     case 'error':
       console.error(logString);
+      // Send errors to Sentry for tracking
+      Sentry.captureMessage(message, {
+        level: 'error',
+        contexts: context ? { extra: context } : undefined,
+      });
       break;
     case 'warn':
       console.warn(logString);
+      // Send warnings to Sentry in production
+      if (process.env.NODE_ENV === 'production') {
+        Sentry.captureMessage(message, {
+          level: 'warning',
+          contexts: context ? { extra: context } : undefined,
+        });
+      }
       break;
     case 'debug':
       if (process.env.NODE_ENV === 'development') {
@@ -67,5 +81,25 @@ export function extractErrorInfo(error: unknown): Record<string, unknown> {
     };
   }
   return { error: String(error) };
+}
+
+/**
+ * Helper to log errors with automatic Sentry capture
+ * Use this for catching and logging exceptions with full context
+ */
+export function logError(
+  message: string,
+  error: unknown,
+  context?: LogContext
+): void {
+  const errorInfo = extractErrorInfo(error);
+  logger.error(message, { ...context, ...errorInfo });
+
+  // Explicitly capture the exception in Sentry if it's an Error object
+  if (error instanceof Error) {
+    Sentry.captureException(error, {
+      contexts: context ? { extra: context } : undefined,
+    });
+  }
 }
 
