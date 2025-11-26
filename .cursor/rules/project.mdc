@@ -110,3 +110,19 @@ alwaysApply: true
 - Backend saves mood check-in and generates a relaxation experience using curated, commercially-safe content sources (music, nature videos, sounds, images, text).
 - Experience includes primary content (music or nature video), optional nature sounds, calming text prompts, and a breathing animation.
 - App shows a safety notice and is not a substitute for professional help.
+
+## 12. E2E Testing (Cypress)
+
+- Use Cypress as the only end-to-end testing framework (no Playwright, Puppeteer, etc.).
+- Place all E2E specs under `cypress/e2e/**.cy.{ts,tsx}` and keep them in TypeScript.
+- Run E2E tests against a real Next.js dev server on `http://localhost:3000` using the App Router.
+- Use a dedicated Neon database (separate from dev/prod) for E2E; never point Cypress at production data.
+- Prefer realistic flows over mocking: exercise real route handlers, Prisma, and Auth.js magic link sessions whenever possible. Only mock truly external services (email provider, 3rd-party APIs).
+- Use semantic queries (roles, labels, visible text) and reserve `data-testid` for hard cases.
+- **At minimum, E2E tests must cover:**
+  - Magic link login + redirect behavior (`/` ↔ `/dashboard`).
+  - Submitting a mood check-in and generating an experience.
+  - Rendering of the dashboard with empty, loading, and populated states.
+  - Responsive layout for mobile (~390px width) and desktop, with no horizontal scrolling.
+- E2E tests must be idempotent and rerunnable: use controlled seed/cleanup for the test database.
+- Wire E2E tests into CI alongside ESLint and Vitest; all must pass before merge.
