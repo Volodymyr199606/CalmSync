@@ -82,5 +82,10 @@
     font-feature-settings: "rlig" 1, "calt" 1;
     min-height: 100vh;
   }
+
+  /* Hide Next.js DevTools portal in development */
+  nextjs-portal {
+    display: none !important;
+  }
 }
 

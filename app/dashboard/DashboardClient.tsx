@@ -40,19 +40,19 @@ export function DashboardClient({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Welcome header */}
       <div>
-        <h1 className="text-2xl font-bold text-white sm:text-3xl">
+        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl md:text-3xl">
           Welcome back{user.name ? `, ${user.name}` : ''}
         </h1>
-        <p className="mt-1 text-sm text-white/80 sm:text-base">
+        <p className="mt-1 text-xs text-gray-600 sm:text-sm md:text-base">
           Take a moment to check in with yourself
         </p>
       </div>
 
       {/* Responsive layout: single-column on mobile, two-column on md+ */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
         {/* Mood Check-In Form */}
         <div className="md:sticky md:top-20 md:self-start">
           <MoodCheckInForm onExperienceGenerated={handleExperienceGenerated} />

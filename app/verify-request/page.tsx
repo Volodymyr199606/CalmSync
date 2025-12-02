@@ -1,83 +1,199 @@
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function VerifyRequestPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6 md:p-24">
-      <div className="z-10 w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">CalmSync</h1>
-          <p className="text-lg md:text-xl text-muted-foreground">
-            Your personal relaxation companion
-          </p>
+    <div className="w-full flex flex-col items-center justify-center px-4 py-16 sm:px-6 md:px-8 min-h-[calc(100vh-80px)]">
+      <div className="w-full max-w-lg mx-auto space-y-8">
+        
+        {/* Animated Email Icon */}
+        <div className="flex justify-center">
+          <div className="relative group">
+            {/* Glowing background effect */}
+            <div className="absolute inset-0 blur-2xl bg-purple-400/30 rounded-full -z-10 group-hover:blur-3xl transition-all duration-300 animate-pulse" />
+            
+            {/* Icon container */}
+            <div className="relative bg-white rounded-full p-5 sm:p-6 shadow-xl border-0">
+              <svg
+                className="h-5 w-5 sm:h-14 sm:w-14 text-purple-600 transition-transform duration-300 group-hover:scale-110"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+          </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <div className="flex justify-center mb-4">
-              <div className="rounded-full bg-primary/10 p-4">
-                <svg
-                  className="h-12 w-12 text-primary"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"
-                  />
-                </svg>
+        {/* Main Content Card */}
+        <Card className="backdrop-blur-lg bg-white/95 border-0 shadow-2xl hover:shadow-3xl transition-shadow duration-300">
+          <CardHeader className="space-y-4 text-center pb-6 pt-8 sm:pt-10">
+            {/* Decorative accent line */}
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <div className="h-px w-12 bg-gradient-to-r from-transparent via-purple-300 to-purple-400" />
+              <div className="h-1.5 w-1.5 rounded-full bg-purple-500" />
+              <div className="h-px w-12 bg-gradient-to-l from-transparent via-purple-300 to-purple-400" />
+            </div>
+
+            <CardTitle className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 tracking-tight leading-tight">
+              Check your email
+            </CardTitle>
+
+            {/* Success indicator */}
+            <div className="flex items-center justify-center gap-2 pt-4">
+              <svg
+                className="h-1 w-1 text-green-500 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              <span className="text-sm font-medium text-green-600 leading-tight">
+                Email sent successfully
+              </span>
+            </div>
+          </CardHeader>
+
+          {/* Description Box */}
+          <div className="px-6 sm:px-8 mb-4">
+            <div className="bg-gradient-to-br from-purple-50/80 to-pink-50/60 backdrop-blur-sm rounded-xl border border-purple-100/50 p-6 sm:p-7 shadow-sm">
+              <div className="text-center space-y-3">
+                <p className="text-lg sm:text-xl text-gray-800 font-semibold leading-relaxed">
+                  We&apos;ve sent you a magic link
+                </p>
+                <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-md mx-auto">
+                  Click the link in your email to sign in securely
+                </p>
               </div>
             </div>
-            <CardTitle className="text-center">Check your email</CardTitle>
-            <CardDescription className="text-center">
-              We&apos;ve sent you a magic link to sign in
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950 p-4">
-              <p className="text-sm text-green-800 dark:text-green-200">
-                <strong>✓ Email sent!</strong>
-              </p>
-              <p className="text-sm text-green-700 dark:text-green-300 mt-1">
-                Click the link in the email to sign in to your account. The link will expire in 24 hours.
-              </p>
+          </div>
+
+          <CardContent className="space-y-6 px-6 sm:px-8 pb-8 pt-0">
+            {/* Instructions */}
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 p-4 rounded-lg bg-purple-50/50 border border-purple-100">
+                <div className="flex-shrink-0 mt-0.5">
+                  <svg
+                    className="h-3 w-3 text-purple-600 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2.5}
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 mb-1 leading-tight">
+                    What to do next
+                  </p>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    Click the link in the email to sign in. The link will expire in 24 hours for security.
+                  </p>
+                </div>
+              </div>
+
+              {/* Help Section */}
+              <div className="pt-4 border-t border-gray-100">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">
+                  Didn&apos;t receive it?
+                </p>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 text-sm text-gray-600">
+                    <svg
+                      className="h-3 w-3 text-gray-400 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2.5}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span className="leading-tight">Check your spam or junk folder</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-gray-600">
+                    <svg
+                      className="h-3 w-3 text-gray-400 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2.5}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span className="leading-tight">Wait a few minutes and try again</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p className="font-medium">What to do next:</p>
-              <ol className="list-decimal list-inside space-y-1 ml-2">
-                <li>Check your inbox for an email from CalmSync</li>
-                <li>Click the &quot;Sign In to CalmSync&quot; button in the email</li>
-                <li>You&apos;ll be automatically signed in</li>
-              </ol>
-            </div>
-
-            <div className="rounded-lg border bg-muted/50 p-4">
-              <p className="text-xs text-muted-foreground">
-                <strong>Didn&apos;t receive the email?</strong>
-              </p>
-              <ul className="text-xs text-muted-foreground mt-2 space-y-1">
-                <li>• Check your spam or junk folder</li>
-                <li>• Make sure you entered the correct email address</li>
-                <li>• The email might take a few minutes to arrive</li>
-                <li>• You can close this page and return to sign in again</li>
-              </ul>
-            </div>
-
-            <div className="text-center pt-4">
-              <a
-                href="/"
-                className="text-sm text-primary hover:underline"
-              >
-                ← Back to sign in
-              </a>
+            {/* Back Button */}
+            <div className="pt-4">
+              <Link href="/" className="block">
+                <Button
+                  variant="outline"
+                  className="w-full h-11 text-sm font-medium border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50/50 transition-all duration-200"
+                >
+                  <svg
+                    className="h-4 w-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                    />
+                  </svg>
+                  Back to sign in
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>
+
+        {/* Additional Help Text */}
+        <div className="text-center">
+          <p className="text-xs text-gray-500">
+            Need help?{" "}
+            <Link
+              href="/"
+              className="text-purple-600 hover:text-purple-700 font-medium transition-colors"
+            >
+              Contact support
+            </Link>
+          </p>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
 

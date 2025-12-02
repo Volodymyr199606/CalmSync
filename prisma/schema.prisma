@@ -5,9 +5,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Note: Using Prisma 6 syntax. The `url` property is correct for Prisma 6.
+// When upgrading to Prisma 7, migrate to prisma.config.ts
+// See: https://pris.ly/d/prisma7-client-config
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL") // Valid for Prisma 6
 }
 
 // Enums

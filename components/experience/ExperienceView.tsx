@@ -45,7 +45,7 @@ function BreathingAnimation() {
           {isInhaling ? 'Breathe In' : 'Breathe Out'}
         </span>
       </div>
-      <p className="text-xs text-gray-600 sm:text-sm">
+      <p className="text-xs sm:text-sm" style={{ color: 'rgb(75, 85, 99)' }}>
         Follow the circle to regulate your breathing
       </p>
     </div>
@@ -72,12 +72,18 @@ function MediaPlayer({ item }: { item: SessionItem }) {
 
   if (item.contentType === 'MUSIC' && item.url) {
     return (
-      <div className="w-full rounded-lg bg-gradient-to-r from-purple-100 to-pink-100 p-6 sm:p-8">
+      <div 
+        className="w-full rounded-lg p-6 sm:p-8"
+        style={{
+          background: 'linear-gradient(to right, rgb(243, 232, 255), rgb(252, 231, 243))'
+        }}
+      >
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md sm:h-14 sm:w-14">
               <svg
-                className="h-6 w-6 text-purple-600 sm:h-7 sm:w-7"
+                className="h-6 w-6 sm:h-7 sm:w-7"
+                style={{ color: 'rgb(147, 51, 234)' }}
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -85,9 +91,9 @@ function MediaPlayer({ item }: { item: SessionItem }) {
               </svg>
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900">{item.title}</h3>
+              <h3 className="font-semibold" style={{ color: 'rgb(17, 24, 39)' }}>{item.title}</h3>
               {item.description && (
-                <p className="text-sm text-gray-600">{item.description}</p>
+                <p className="text-sm" style={{ color: 'rgb(75, 85, 99)' }}>{item.description}</p>
               )}
             </div>
           </div>
@@ -107,13 +113,18 @@ function MediaPlayer({ item }: { item: SessionItem }) {
  */
 function TextPrompt({ item }: { item: SessionItem }) {
   return (
-    <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 p-4 sm:p-6">
+    <Card 
+      className="p-4 sm:p-6 bg-white/95 backdrop-blur-sm border-0 shadow-lg"
+      style={{
+        background: 'linear-gradient(to bottom right, rgb(238, 242, 255), rgb(250, 245, 255))'
+      }}
+    >
       <div className="space-y-2">
-        <h3 className="text-base font-semibold text-gray-900 sm:text-lg">
+        <h3 className="text-base font-semibold sm:text-lg" style={{ color: 'rgb(17, 24, 39)' }}>
           {item.title}
         </h3>
         {item.description && (
-          <p className="text-sm leading-relaxed text-gray-700 sm:text-base">
+          <p className="text-sm leading-relaxed sm:text-base" style={{ color: 'rgb(55, 65, 81)' }}>
             {item.description}
           </p>
         )}
@@ -150,10 +161,14 @@ function BackgroundImage({ item }: { item: SessionItem }) {
  */
 function EmptyState() {
   return (
-    <Card className="flex min-h-[400px] flex-col items-center justify-center p-6 text-center sm:p-8">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-100 sm:h-20 sm:w-20">
+    <Card className="flex min-h-[400px] flex-col items-center justify-center p-6 text-center sm:p-8 bg-white/95 backdrop-blur-sm border-0 shadow-xl">
+      <div 
+        className="flex h-16 w-16 items-center justify-center rounded-full sm:h-20 sm:w-20" 
+        style={{ backgroundColor: 'rgb(243, 232, 255)' }}
+      >
         <svg
-          className="h-8 w-8 text-purple-600 sm:h-10 sm:w-10"
+          className="h-8 w-8 sm:h-10 sm:w-10"
+          style={{ color: 'rgb(147, 51, 234)' }}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -166,10 +181,10 @@ function EmptyState() {
           />
         </svg>
       </div>
-      <h3 className="mt-4 text-lg font-semibold text-gray-900 sm:text-xl">
+      <h3 className="mt-4 text-lg font-semibold sm:text-xl" style={{ color: 'rgb(17, 24, 39)' }}>
         Ready to relax?
       </h3>
-      <p className="mt-2 max-w-sm text-sm text-gray-600 sm:text-base">
+      <p className="mt-2 max-w-sm text-sm sm:text-base" style={{ color: 'rgb(75, 85, 99)' }}>
         Complete the mood check-in form to receive your personalized relaxation
         experience.
       </p>
@@ -182,10 +197,11 @@ function EmptyState() {
  */
 function LoadingState() {
   return (
-    <Card className="flex min-h-[400px] flex-col items-center justify-center p-6 text-center sm:p-8">
+    <Card className="flex min-h-[400px] flex-col items-center justify-center p-6 text-center sm:p-8 bg-white/95 backdrop-blur-sm border-0 shadow-xl">
       <div className="flex h-16 w-16 items-center justify-center sm:h-20 sm:w-20">
         <svg
-          className="h-12 w-12 animate-spin text-purple-600 sm:h-14 sm:w-14"
+          className="h-12 w-12 animate-spin sm:h-14 sm:w-14"
+          style={{ color: 'rgb(147, 51, 234)' }}
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -205,10 +221,10 @@ function LoadingState() {
           />
         </svg>
       </div>
-      <h3 className="mt-4 text-lg font-semibold text-gray-900 sm:text-xl">
+      <h3 className="mt-4 text-lg font-semibold sm:text-xl" style={{ color: 'rgb(17, 24, 39)' }}>
         Creating your experience...
       </h3>
-      <p className="mt-2 text-sm text-gray-600 sm:text-base">
+      <p className="mt-2 text-sm sm:text-base" style={{ color: 'rgb(75, 85, 99)' }}>
         Curating the perfect relaxation content for you
       </p>
     </Card>
@@ -235,15 +251,15 @@ export function ExperienceView({ session, items }: ExperienceViewProps) {
   const textPrompts = items.filter((item) => item.contentType === 'TEXT');
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-3 sm:space-y-4">
       {/* Header with session info */}
-      <Card className="p-4 sm:p-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <Card className="p-3 sm:p-4 bg-white/95 backdrop-blur-sm border-0 shadow-xl">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
+            <h2 className="text-base font-semibold sm:text-lg" style={{ color: 'rgb(17, 24, 39)' }}>
               Your Relaxation Experience
             </h2>
-            <p className="mt-1 text-sm text-gray-600">
+            <p className="mt-0.5 text-xs sm:text-sm" style={{ color: 'rgb(75, 85, 99)' }}>
               {session.durationMinutes} minutes • {session.feeling.toLowerCase()} relief
             </p>
           </div>
@@ -252,31 +268,35 @@ export function ExperienceView({ session, items }: ExperienceViewProps) {
           {ambientSound && (
             <Button
               variant={soundEnabled ? 'default' : 'outline'}
-              size="sm"
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto h-9 text-xs sm:text-sm"
+              style={{
+                backgroundColor: soundEnabled ? 'rgb(147, 51, 234)' : undefined,
+                color: soundEnabled ? 'white' : undefined,
+              }}
             >
               {soundEnabled ? (
                 <>
-                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="mr-1.5 h-3.5 w-3.5 sm:h-4 sm:w-4" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
                       d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"
                       clipRule="evenodd"
                     />
                   </svg>
-                  Sound On
+                  <span>Sound On</span>
                 </>
               ) : (
                 <>
-                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="mr-1.5 h-3.5 w-3.5 sm:h-4 sm:w-4" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
                       d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z"
                       clipRule="evenodd"
                     />
                   </svg>
-                  Add Nature Sounds
+                  <span className="hidden sm:inline">Add Nature Sounds</span>
+                  <span className="sm:hidden">Sounds</span>
                 </>
               )}
             </Button>
@@ -286,7 +306,7 @@ export function ExperienceView({ session, items }: ExperienceViewProps) {
 
       {/* Primary content (video or music) */}
       {primaryContent && (
-        <Card className="overflow-hidden p-0">
+        <Card className="overflow-hidden p-0 bg-white/95 backdrop-blur-sm border-0 shadow-xl">
           <MediaPlayer item={primaryContent} />
         </Card>
       )}
@@ -295,7 +315,7 @@ export function ExperienceView({ session, items }: ExperienceViewProps) {
       {backgroundImage && <BackgroundImage item={backgroundImage} />}
 
       {/* Breathing animation */}
-      <Card>
+      <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl">
         <BreathingAnimation />
       </Card>
 

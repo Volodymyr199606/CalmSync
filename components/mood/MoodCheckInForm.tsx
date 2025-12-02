@@ -108,21 +108,21 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
   };
 
   return (
-    <Card className="p-4 sm:p-6">
+    <Card className="p-4 sm:p-6 bg-white/95 backdrop-blur-sm border-0 shadow-xl">
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Title */}
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 sm:text-2xl">
+          <h2 className="text-xl font-semibold sm:text-2xl" style={{ color: 'rgb(17, 24, 39)' }}>
             How are you feeling?
           </h2>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="mt-1 text-sm" style={{ color: 'rgb(75, 85, 99)' }}>
             Share your current state, and we&apos;ll create a personalized relaxation experience.
           </p>
         </div>
 
         {/* Feeling selection buttons */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium" style={{ color: 'rgb(55, 65, 81)' }}>
             Select your feeling
           </label>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
@@ -131,16 +131,20 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
                 key={feeling.value}
                 type="button"
                 onClick={() => handleFeelingSelect(feeling.value)}
+                style={{
+                  backgroundColor: selectedFeeling === feeling.value ? undefined : 'white',
+                  borderColor: selectedFeeling === feeling.value ? undefined : 'rgb(229, 231, 235)',
+                }}
                 className={`
                   flex flex-col items-center justify-center rounded-lg border-2 p-3 transition-all sm:p-4
                   ${selectedFeeling === feeling.value 
                     ? `${feeling.color} ring-2 ring-offset-2 ring-gray-900` 
-                    : 'border-gray-200 bg-white hover:border-gray-300'
+                    : 'hover:border-gray-300'
                   }
                 `}
               >
                 <span className="text-2xl sm:text-3xl">{feeling.emoji}</span>
-                <span className="mt-2 text-xs font-medium text-gray-900 sm:text-sm">
+                <span className="mt-2 text-xs font-medium sm:text-sm" style={{ color: 'rgb(17, 24, 39)' }}>
                   {feeling.label}
                 </span>
               </button>
@@ -151,10 +155,10 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
         {/* Severity slider */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <label id={intensityLabelId} className="block text-sm font-medium text-gray-700">
+            <label id={intensityLabelId} className="block text-sm font-medium" style={{ color: 'rgb(55, 65, 81)' }}>
               Intensity level
             </label>
-            <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-900">
+            <span className="rounded-full px-3 py-1 text-sm font-semibold" style={{ backgroundColor: 'rgb(243, 244, 246)', color: 'rgb(17, 24, 39)' }}>
               {severity}/10
             </span>
           </div>
@@ -168,7 +172,7 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
             step={1}
             className="w-full"
           />
-          <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between text-xs" style={{ color: 'rgb(107, 114, 128)' }}>
             <span>Mild</span>
             <span>Moderate</span>
             <span>Severe</span>
@@ -177,7 +181,7 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
 
         {/* Optional notes */}
         <div className="space-y-2">
-          <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="notes" className="block text-sm font-medium" style={{ color: 'rgb(55, 65, 81)' }}>
             Notes (optional)
           </label>
           <Textarea
@@ -186,15 +190,15 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Add any additional context about how you're feeling..."
             rows={3}
-            className="w-full resize-none"
+            className="w-full resize-none bg-white"
             disabled={isSubmitting}
           />
         </div>
 
         {/* Error message */}
         {error && (
-          <div className="rounded-md bg-red-50 p-3 sm:p-4">
-            <p className="text-sm text-red-800">{error}</p>
+          <div className="rounded-md p-3 sm:p-4" style={{ backgroundColor: 'rgb(254, 242, 242)' }}>
+            <p className="text-sm" style={{ color: 'rgb(153, 27, 27)' }}>{error}</p>
           </div>
         )}
 
@@ -202,8 +206,10 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full"
-          size="lg"
+          className="w-full h-10 text-sm sm:text-base text-white"
+          style={{
+            backgroundColor: 'rgb(147, 51, 234)',
+          }}
         >
           {isSubmitting ? (
             <span className="flex items-center gap-2">
@@ -227,7 +233,7 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 />
               </svg>
-              Generating your experience...
+              <span className="text-xs sm:text-sm">Generating your experience...</span>
             </span>
           ) : (
             'Create Relaxation Experience'
