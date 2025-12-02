@@ -131,14 +131,9 @@ export function MobileMenu({ userEmail, userInitial, signOutAction }: MobileMenu
             {userEmail && (
               <>
                 <div className="mt-4 pt-4 border-t border-gray-200">
-                  <div className="flex items-center gap-3 px-4 py-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 text-sm font-medium text-purple-700">
-                      {userInitial}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900">Account</p>
-                      <p className="text-xs text-gray-500 truncate">{userEmail}</p>
-                    </div>
+                  <div className="px-4 py-2">
+                    <p className="text-sm font-medium text-gray-900">Account</p>
+                    <p className="text-xs text-gray-500 truncate">{userEmail}</p>
                   </div>
                 </div>
 

@@ -82,12 +82,14 @@ const natureVideos: ContentItem[] = [
 ];
 
 // Relaxing Music
+// Using local files in public/audio/ directory
+// NOTE: Until you add all 4 files, all feelings will use ambient-1.mp3 as fallback
 const music: ContentItem[] = [
   {
     id: "music-ambient-1",
     type: "MUSIC",
     title: "Peaceful Ambient Music",
-    url: "https://freepd.com/music/Meditation%20Impromptu%2001.mp3",
+    url: "/audio/ambient-1.mp3",
     description: "Calm ambient music for relaxation",
     feeling: "ANXIETY",
     tags: ["ambient", "peaceful", "meditation"],
@@ -95,17 +97,18 @@ const music: ContentItem[] = [
       type: "PUBLIC_DOMAIN",
       requiresAttribution: false,
       commercialUse: true,
-      source: "FreePD",
-      sourceUrl: "https://freepd.com",
+      source: "Local",
+      sourceUrl: "",
     },
-    attribution: "Kevin MacLeod - FreePD.com",
+    attribution: "",
     durationSeconds: 300,
   },
   {
     id: "music-lofi-1",
     type: "MUSIC",
     title: "Lofi Study Beats",
-    url: "https://freepd.com/music/Ambient%20Piano.mp3",
+    // Fallback to ambient-1.mp3 until lofi-1.mp3 is added
+    url: "/audio/ambient-1.mp3",
     description: "Gentle lofi music for focus and calm",
     feeling: "STRESS",
     tags: ["lofi", "chill", "study", "focus"],
@@ -113,17 +116,18 @@ const music: ContentItem[] = [
       type: "PUBLIC_DOMAIN",
       requiresAttribution: false,
       commercialUse: true,
-      source: "FreePD",
-      sourceUrl: "https://freepd.com",
+      source: "Local",
+      sourceUrl: "",
     },
-    attribution: "Kevin MacLeod - FreePD.com",
+    attribution: "",
     durationSeconds: 240,
   },
   {
     id: "music-piano-1",
     type: "MUSIC",
     title: "Soft Piano Melody",
-    url: "https://freepd.com/music/Meditation%20Impromptu%2002.mp3",
+    // Fallback to ambient-1.mp3 until piano-1.mp3 is added
+    url: "/audio/ambient-1.mp3",
     description: "Gentle piano music for reflection",
     feeling: "DEPRESSION",
     tags: ["piano", "soft", "gentle", "hopeful"],
@@ -131,17 +135,18 @@ const music: ContentItem[] = [
       type: "PUBLIC_DOMAIN",
       requiresAttribution: false,
       commercialUse: true,
-      source: "FreePD",
-      sourceUrl: "https://freepd.com",
+      source: "Local",
+      sourceUrl: "",
     },
-    attribution: "Kevin MacLeod - FreePD.com",
+    attribution: "",
     durationSeconds: 280,
   },
   {
     id: "music-nature-1",
     type: "MUSIC",
     title: "Nature Sounds with Music",
-    url: "https://freepd.com/music/Meditation%20Impromptu%2003.mp3",
+    // Fallback to ambient-1.mp3 until nature-1.mp3 is added
+    url: "/audio/ambient-1.mp3",
     description: "Harmonious blend of nature and music",
     feeling: "FRUSTRATION",
     tags: ["nature", "music", "harmony", "calm"],
@@ -149,10 +154,10 @@ const music: ContentItem[] = [
       type: "PUBLIC_DOMAIN",
       requiresAttribution: false,
       commercialUse: true,
-      source: "FreePD",
-      sourceUrl: "https://freepd.com",
+      source: "Local",
+      sourceUrl: "",
     },
-    attribution: "Kevin MacLeod - FreePD.com",
+    attribution: "",
     durationSeconds: 260,
   },
 ];
@@ -344,7 +349,15 @@ export function getNatureVideosForFeeling(feeling: Feeling): ContentItem[] {
 }
 
 export function getMusicForFeeling(feeling: Feeling): ContentItem[] {
-  return music.filter((item) => item.feeling === feeling);
+  const feelingMusic = music.filter((item) => item.feeling === feeling);
+  
+  // Fallback: If no music for this feeling, use any available music
+  // This helps when user hasn't added all 4 files yet
+  if (feelingMusic.length === 0 && music.length > 0) {
+    return [music[0]]; // Return first available music
+  }
+  
+  return feelingMusic;
 }
 
 export function getNatureSoundsForFeeling(feeling: Feeling): ContentItem[] {

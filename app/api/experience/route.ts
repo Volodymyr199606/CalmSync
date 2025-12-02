@@ -186,7 +186,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
         },
       });
 
-      // Create content item if it doesn't exist
+      // Create or update content item to ensure URL is current
       if (!dbContentItem) {
         dbContentItem = await prisma.contentItem.create({
           data: {
@@ -196,6 +196,16 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
             content: contentItem.content || null,
             description: contentItem.description || null,
             feeling: contentItem.feeling,
+            tags: contentItem.tags,
+          },
+        });
+      } else {
+        // Update existing item to use latest URL from content library
+        dbContentItem = await prisma.contentItem.update({
+          where: { id: dbContentItem.id },
+          data: {
+            url: contentItem.url || null,
+            description: contentItem.description || null,
             tags: contentItem.tags,
           },
         });
@@ -224,6 +234,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     });
 
     // Build response items array
+    // IMPORTANT: Use URL from contentItem (content library) not dbItem (database)
+    // This ensures we always use the latest URLs even if database has old ones
     const sessionItemsData: SessionItem[] = createdSessionItems.map(sessionItem => {
       const { dbItem, contentItem } = contentItemsMap.get(sessionItem.orderIndex)!;
       return {
@@ -232,7 +244,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
         contentType: dbItem.type,
         contentId: dbItem.id,
         title: dbItem.title,
-        url: dbItem.url,
+        url: contentItem.url || dbItem.url, // Use URL from content library (source of truth)
         description: dbItem.description,
         duration: contentItem.durationSeconds || null,
         orderIndex: sessionItem.orderIndex,

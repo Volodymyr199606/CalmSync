@@ -5,7 +5,7 @@
  * Includes video/music player, ambient sounds, prompts, and breathing animation
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { RelaxationSession, SessionItem } from '@/types/domain';
@@ -53,6 +53,184 @@ function BreathingAnimation() {
 }
 
 /**
+ * Music player component with autoplay
+ */
+function MusicPlayer({ item }: { item: SessionItem }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [hasAttemptedPlay, setHasAttemptedPlay] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showPlayButton, setShowPlayButton] = useState(false);
+
+  // Attempt autoplay when component mounts (after form submission = user interaction)
+  useEffect(() => {
+    if (audioRef.current && !hasAttemptedPlay && item.url) {
+      setHasAttemptedPlay(true);
+      
+      const audio = audioRef.current;
+      
+      // First, verify the file can be loaded
+      const checkFile = async () => {
+        try {
+          const response = await fetch(item.url, { method: 'HEAD' });
+          if (!response.ok) {
+            setError(`Audio file not found: ${item.url}. Please check that the file exists in public/audio/`);
+            return;
+          }
+        } catch (err) {
+          console.warn('Could not verify file, but will try to load anyway:', err);
+        }
+      };
+      
+      checkFile();
+      
+      const tryPlay = async () => {
+        try {
+          await audio.play();
+          setIsPlaying(true);
+          setError(null);
+          setShowPlayButton(false);
+        } catch (err) {
+          // Autoplay blocked - show play button
+          console.log('Autoplay prevented, showing play button');
+          setShowPlayButton(true);
+          setError(null); // Don't show error, just show play button
+        }
+      };
+
+      // Wait for audio to be ready
+      if (audio.readyState >= 2) {
+        tryPlay();
+      } else {
+        // Set a timeout to detect if audio never loads
+        const loadTimeout = setTimeout(() => {
+          if (audio.readyState === 0) {
+            console.error('Audio failed to load:', item.url);
+            setError(`Audio file not loading: ${item.url}. Make sure the file exists and restart your dev server.`);
+          }
+        }, 5000);
+
+        audio.addEventListener('canplay', () => {
+          clearTimeout(loadTimeout);
+          tryPlay();
+        }, { once: true });
+        
+        audio.addEventListener('error', (e) => {
+          clearTimeout(loadTimeout);
+          const error = audio.error;
+          let errorMsg = `Unable to load audio: ${item.url}`;
+          if (error) {
+            if (error.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED) {
+              errorMsg += ' (File format not supported)';
+            } else if (error.code === MediaError.MEDIA_ERR_NETWORK) {
+              errorMsg += ' (Network error - check file path)';
+            } else if (error.code === MediaError.MEDIA_ERR_DECODE) {
+              errorMsg += ' (File corrupted or invalid)';
+            }
+          }
+          console.error('Audio error:', error, 'URL:', item.url);
+          setError(errorMsg + '. Please check that the file exists in public/audio/ and restart your dev server.');
+        }, { once: true });
+      }
+
+      // Track playing state
+      audio.addEventListener('play', () => setIsPlaying(true));
+      audio.addEventListener('pause', () => setIsPlaying(false));
+      audio.addEventListener('ended', () => setIsPlaying(false));
+    }
+  }, [hasAttemptedPlay, item.url]);
+
+  const handlePlayClick = async () => {
+    if (audioRef.current) {
+      try {
+        await audioRef.current.play();
+        setShowPlayButton(false);
+        setIsPlaying(true);
+      } catch (err) {
+        setError('Unable to play audio. Please check your browser settings.');
+      }
+    }
+  };
+
+  return (
+    <div 
+      className="w-full rounded-lg p-6 sm:p-8"
+      style={{
+        background: 'linear-gradient(to right, rgb(243, 232, 255), rgb(252, 231, 243))'
+      }}
+    >
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md sm:h-14 sm:w-14">
+            <svg
+              className="h-6 w-6 sm:h-7 sm:w-7"
+              style={{ color: 'rgb(147, 51, 234)' }}
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold" style={{ color: 'rgb(17, 24, 39)' }}>{item.title}</h3>
+            {item.description && (
+              <p className="text-sm" style={{ color: 'rgb(75, 85, 99)' }}>{item.description}</p>
+            )}
+          </div>
+        </div>
+        <div className="space-y-2">
+          <audio 
+            ref={audioRef}
+            controls 
+            autoPlay
+            loop
+            preload="auto"
+            className="w-full" 
+            src={item.url || undefined}
+            onError={(e) => {
+              console.error('Audio element error:', e);
+              setError('Failed to load audio file. Please check the file path and format.');
+            }}
+          >
+            Your browser does not support the audio element.
+          </audio>
+          
+          {/* Show play button if autoplay was blocked */}
+          {showPlayButton && !isPlaying && (
+            <Button
+              onClick={handlePlayClick}
+              className="w-full"
+              style={{
+                backgroundColor: 'rgb(147, 51, 234)',
+                color: 'white'
+              }}
+            >
+              <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+              </svg>
+              Click to Play Music
+            </Button>
+          )}
+
+          {error && (
+            <div className="space-y-1">
+              <p className="text-xs text-center" style={{ color: 'rgb(153, 27, 27)' }}>
+                {error}
+              </p>
+              {error.includes('placeholder') && (
+                <p className="text-xs text-center" style={{ color: 'rgb(75, 85, 99)' }}>
+                  Download real music from <a href="https://freepd.com" target="_blank" rel="noopener noreferrer" className="underline">FreePD.com</a> or <a href="https://pixabay.com/music/" target="_blank" rel="noopener noreferrer" className="underline">Pixabay</a> and place in <code className="text-xs bg-gray-100 px-1 rounded">public/audio/</code>
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
  * Media player component for video or music
  */
 function MediaPlayer({ item }: { item: SessionItem }) {
@@ -71,38 +249,7 @@ function MediaPlayer({ item }: { item: SessionItem }) {
   }
 
   if (item.contentType === 'MUSIC' && item.url) {
-    return (
-      <div 
-        className="w-full rounded-lg p-6 sm:p-8"
-        style={{
-          background: 'linear-gradient(to right, rgb(243, 232, 255), rgb(252, 231, 243))'
-        }}
-      >
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md sm:h-14 sm:w-14">
-              <svg
-                className="h-6 w-6 sm:h-7 sm:w-7"
-                style={{ color: 'rgb(147, 51, 234)' }}
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
-              </svg>
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold" style={{ color: 'rgb(17, 24, 39)' }}>{item.title}</h3>
-              {item.description && (
-                <p className="text-sm" style={{ color: 'rgb(75, 85, 99)' }}>{item.description}</p>
-              )}
-            </div>
-          </div>
-          <audio controls className="w-full" src={item.url}>
-            Your browser does not support the audio element.
-          </audio>
-        </div>
-      </div>
-    );
+    return <MusicPlayer item={item} />;
   }
 
   return null;
