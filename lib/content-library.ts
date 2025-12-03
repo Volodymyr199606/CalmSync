@@ -83,7 +83,6 @@ const natureVideos: ContentItem[] = [
 
 // Relaxing Music
 // Using local files in public/audio/ directory
-// NOTE: Until you add all 4 files, all feelings will use ambient-1.mp3 as fallback
 const music: ContentItem[] = [
   {
     id: "music-ambient-1",
@@ -107,8 +106,7 @@ const music: ContentItem[] = [
     id: "music-lofi-1",
     type: "MUSIC",
     title: "Lofi Study Beats",
-    // Fallback to ambient-1.mp3 until lofi-1.mp3 is added
-    url: "/audio/ambient-1.mp3",
+    url: "/audio/lofi-1.mp3",
     description: "Gentle lofi music for focus and calm",
     feeling: "STRESS",
     tags: ["lofi", "chill", "study", "focus"],
@@ -126,8 +124,7 @@ const music: ContentItem[] = [
     id: "music-piano-1",
     type: "MUSIC",
     title: "Soft Piano Melody",
-    // Fallback to ambient-1.mp3 until piano-1.mp3 is added
-    url: "/audio/ambient-1.mp3",
+    url: "/audio/piano-1.mp3",
     description: "Gentle piano music for reflection",
     feeling: "DEPRESSION",
     tags: ["piano", "soft", "gentle", "hopeful"],
@@ -145,8 +142,7 @@ const music: ContentItem[] = [
     id: "music-nature-1",
     type: "MUSIC",
     title: "Nature Sounds with Music",
-    // Fallback to ambient-1.mp3 until nature-1.mp3 is added
-    url: "/audio/ambient-1.mp3",
+    url: "/audio/nature-1.mp3",
     description: "Harmonious blend of nature and music",
     feeling: "FRUSTRATION",
     tags: ["nature", "music", "harmony", "calm"],

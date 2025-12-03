@@ -71,6 +71,7 @@ function MusicPlayer({ item }: { item: SessionItem }) {
       
       // First, verify the file can be loaded
       const checkFile = async () => {
+        if (!item.url) return;
         try {
           const response = await fetch(item.url, { method: 'HEAD' });
           if (!response.ok) {
@@ -153,32 +154,14 @@ function MusicPlayer({ item }: { item: SessionItem }) {
   };
 
   return (
-    <div 
-      className="w-full rounded-lg p-6 sm:p-8"
-      style={{
-        background: 'linear-gradient(to right, rgb(243, 232, 255), rgb(252, 231, 243))'
-      }}
-    >
-      <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md sm:h-14 sm:w-14">
-            <svg
-              className="h-6 w-6 sm:h-7 sm:w-7"
-              style={{ color: 'rgb(147, 51, 234)' }}
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
-            </svg>
-          </div>
-          <div className="flex-1">
-            <h3 className="font-semibold" style={{ color: 'rgb(17, 24, 39)' }}>{item.title}</h3>
-            {item.description && (
-              <p className="text-sm" style={{ color: 'rgb(75, 85, 99)' }}>{item.description}</p>
-            )}
-          </div>
-        </div>
-        <div className="space-y-2">
+    <div className="space-y-4">
+      <div>
+        <h3 className="font-semibold" style={{ color: 'rgb(17, 24, 39)' }}>{item.title}</h3>
+        {item.description && (
+          <p className="text-sm" style={{ color: 'rgb(75, 85, 99)' }}>{item.description}</p>
+        )}
+      </div>
+      <div className="space-y-2">
           <audio 
             ref={audioRef}
             controls 
@@ -226,7 +209,6 @@ function MusicPlayer({ item }: { item: SessionItem }) {
           )}
         </div>
       </div>
-    </div>
   );
 }
 
@@ -382,7 +364,6 @@ function LoadingState() {
  * Main ExperienceView component
  */
 export function ExperienceView({ session, items }: ExperienceViewProps) {
-  const [soundEnabled, setSoundEnabled] = useState(false);
 
   // Show empty state if no session
   if (!session) {
@@ -410,52 +391,12 @@ export function ExperienceView({ session, items }: ExperienceViewProps) {
               {session.durationMinutes} minutes • {session.feeling.toLowerCase()} relief
             </p>
           </div>
-          
-          {/* Ambient sound toggle */}
-          {ambientSound && (
-            <Button
-              variant={soundEnabled ? 'default' : 'outline'}
-              onClick={() => setSoundEnabled(!soundEnabled)}
-              className="w-full sm:w-auto h-9 text-xs sm:text-sm"
-              style={{
-                backgroundColor: soundEnabled ? 'rgb(147, 51, 234)' : undefined,
-                color: soundEnabled ? 'white' : undefined,
-              }}
-            >
-              {soundEnabled ? (
-                <>
-                  <svg className="mr-1.5 h-3.5 w-3.5 sm:h-4 sm:w-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>Sound On</span>
-                </>
-              ) : (
-                <>
-                  <svg className="mr-1.5 h-3.5 w-3.5 sm:h-4 sm:w-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span className="hidden sm:inline">Add Nature Sounds</span>
-                  <span className="sm:hidden">Sounds</span>
-                </>
-              )}
-            </Button>
-          )}
         </div>
       </Card>
 
       {/* Primary content (video or music) */}
       {primaryContent && (
-        <Card className="overflow-hidden p-0 bg-white/95 backdrop-blur-sm border-0 shadow-xl">
-          <MediaPlayer item={primaryContent} />
-        </Card>
+        <MediaPlayer item={primaryContent} />
       )}
 
       {/* Background image */}
@@ -475,12 +416,6 @@ export function ExperienceView({ session, items }: ExperienceViewProps) {
         </div>
       )}
 
-      {/* Hidden audio element for ambient sound */}
-      {ambientSound && soundEnabled && ambientSound.url && (
-        <audio autoPlay loop src={ambientSound.url} className="hidden">
-          Your browser does not support the audio element.
-        </audio>
-      )}
     </div>
   );
 }
