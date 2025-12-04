@@ -263,24 +263,168 @@ function TextPrompt({ item }: { item: SessionItem }) {
 }
 
 /**
- * Background image component
+ * Pinterest-style nature images carousel
+ * Displays multiple calming nature images in a horizontal scrollable carousel
+ * Always shows calming nature images to enhance the relaxation experience
  */
-function BackgroundImage({ item }: { item: SessionItem }) {
-  if (!item.url) return null;
+function NatureImagesCarousel({ images, feeling }: { images: SessionItem[]; feeling: string }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Default calming nature images - always show these for inspiration
+  // Using higher resolution images for better quality
+  const defaultNatureImages = [
+    {
+      id: 'default-1',
+      title: 'Peaceful Forest',
+      description: 'Tranquil forest path surrounded by greenery',
+      url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&q=85&fit=crop',
+    },
+    {
+      id: 'default-2',
+      title: 'Calm Ocean',
+      description: 'Gentle waves on a serene beach',
+      url: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1200&q=85&fit=crop',
+    },
+    {
+      id: 'default-3',
+      title: 'Mountain Vista',
+      description: 'Majestic mountains under clear skies',
+      url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=85&fit=crop',
+    },
+    {
+      id: 'default-4',
+      title: 'Blooming Garden',
+      description: 'Beautiful flowers in a peaceful garden',
+      url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=85&fit=crop',
+    },
+    {
+      id: 'default-5',
+      title: 'Serene Lake',
+      description: 'Still waters reflecting the sky',
+      url: 'https://images.unsplash.com/photo-1511497584788-876760111969?w=1200&q=85&fit=crop',
+    },
+    {
+      id: 'default-6',
+      title: 'Sunset Sky',
+      description: 'Peaceful evening colors',
+      url: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=1200&q=85&fit=crop',
+    },
+  ];
+
+  // Use session images if available, otherwise use default images
+  const displayImages = images.length > 0 
+    ? images.map(item => ({
+        id: item.id,
+        title: item.title,
+        description: item.description || '',
+        url: getImageUrlFromItem(item),
+      }))
+    : defaultNatureImages;
+
+  // Get image URL from session item or use Unsplash defaults
+  function getImageUrlFromItem(item: SessionItem): string {
+    // If item has a valid image URL, use it
+    if (item.url && item.url.startsWith('http')) {
+      return item.url;
+    }
+    // Otherwise use Unsplash images based on feeling (higher resolution for better quality)
+    const unsplashImages = [
+      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&q=85&fit=crop', // Forest
+      'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1200&q=85&fit=crop', // Ocean
+      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=85&fit=crop', // Mountains
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=85&fit=crop', // Garden
+      'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1200&q=85&fit=crop', // Flowers
+      'https://images.unsplash.com/photo-1511497584788-876760111969?w=1200&q=85&fit=crop', // Lake
+    ];
+    return unsplashImages[images.indexOf(item) % unsplashImages.length] || unsplashImages[0];
+  }
+
+  // Auto-scroll every 5 seconds
+  useEffect(() => {
+    if (displayImages.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % displayImages.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [displayImages.length]);
+
+  // Scroll to current index
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const scrollWidth = scrollContainerRef.current.scrollWidth / displayImages.length;
+      scrollContainerRef.current.scrollTo({
+        left: currentIndex * scrollWidth,
+        behavior: 'smooth',
+      });
+    }
+  }, [currentIndex, displayImages.length]);
 
   return (
-    <div className="relative h-48 w-full overflow-hidden rounded-lg sm:h-64">
-      <img
-        src={item.url}
-        alt={item.title}
-        className="h-full w-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-      <div className="absolute bottom-0 left-0 right-0 p-4">
-        <p className="text-sm font-medium text-white sm:text-base">
-          {item.title}
-        </p>
+    <div className="space-y-4 w-full min-h-0">
+      {/* Title with highlighted text - Pinterest style */}
+      <div className="text-center px-2">
+        <h3 className="text-lg sm:text-xl md:text-2xl font-semibold">
+          <span style={{ color: 'rgb(17, 24, 39)' }}>Get your next </span>
+          <span style={{ color: 'rgb(14, 165, 233)' }}>calming nature idea</span>
+        </h3>
       </div>
+
+      {/* Carousel container */}
+      <div className="relative w-full overflow-hidden min-h-0">
+        <div
+          ref={scrollContainerRef}
+          className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-2"
+        >
+          {displayImages.map((image, index) => (
+            <div
+              key={image.id}
+              className="flex-shrink-0 w-[90%] sm:w-[75%] md:w-[85%] lg:w-[80%] snap-start max-w-full"
+            >
+              <div className="relative w-full aspect-[4/3] max-h-[400px] overflow-hidden rounded-xl sm:rounded-2xl bg-gray-100 shadow-lg">
+                <img
+                  src={image.url}
+                  alt={image.title}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-5 lg:p-6">
+                  <p className="text-sm sm:text-base md:text-lg font-semibold text-white">
+                    {image.title}
+                  </p>
+                  {image.description && (
+                    <p className="text-xs sm:text-sm text-white/90 mt-0.5 sm:mt-1">
+                      {image.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Navigation dots - Pinterest style */}
+        {displayImages.length > 1 && (
+          <div className="flex justify-center gap-2 mt-4">
+            {displayImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === currentIndex
+                    ? 'w-8 bg-sky-500'
+                    : 'w-2 bg-gray-300 hover:bg-gray-400'
+                }`}
+                aria-label={`Go to image ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }
@@ -375,7 +519,7 @@ export function ExperienceView({ session, items }: ExperienceViewProps) {
     (item) => item.contentType === 'NATURE_VIDEO' || item.contentType === 'MUSIC'
   );
   const ambientSound = items.find((item) => item.contentType === 'NATURE_SOUND');
-  const backgroundImage = items.find((item) => item.contentType === 'IMAGE');
+  const backgroundImages = items.filter((item) => item.contentType === 'IMAGE');
   const textPrompts = items.filter((item) => item.contentType === 'TEXT');
 
   return (
@@ -399,8 +543,10 @@ export function ExperienceView({ session, items }: ExperienceViewProps) {
         <MediaPlayer item={primaryContent} />
       )}
 
-      {/* Background image */}
-      {backgroundImage && <BackgroundImage item={backgroundImage} />}
+      {/* Pinterest-style nature images carousel - always show for inspiration */}
+      <Card className="p-4 sm:p-6 bg-white/95 backdrop-blur-sm border-0 shadow-xl">
+        <NatureImagesCarousel images={backgroundImages} feeling={session.feeling} />
+      </Card>
 
       {/* Breathing animation */}
       <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl">
