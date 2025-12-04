@@ -246,7 +246,6 @@ function TextPrompt({ item }: { item: SessionItem }) {
  */
 function NatureImagesCarousel({ images, feeling }: { images: SessionItem[]; feeling: string }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Default calming nature images - always show these for inspiration
   // Using higher resolution images for better quality
@@ -317,6 +316,14 @@ function NatureImagesCarousel({ images, feeling }: { images: SessionItem[]; feel
     return unsplashImages[images.indexOf(item) % unsplashImages.length] || unsplashImages[0];
   }
 
+  const handlePrevious = () => {
+    setCurrentIndex((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev === displayImages.length - 1 ? 0 : prev + 1));
+  };
+
   // Auto-scroll every 5 seconds
   useEffect(() => {
     if (displayImages.length <= 1) return;
@@ -328,36 +335,28 @@ function NatureImagesCarousel({ images, feeling }: { images: SessionItem[]; feel
     return () => clearInterval(interval);
   }, [displayImages.length]);
 
-  // Scroll to current index
-  useEffect(() => {
-    if (scrollContainerRef.current) {
-      const scrollWidth = scrollContainerRef.current.scrollWidth / displayImages.length;
-      scrollContainerRef.current.scrollTo({
-        left: currentIndex * scrollWidth,
-        behavior: 'smooth',
-      });
-    }
-  }, [currentIndex, displayImages.length]);
-
   return (
-    <div className="space-y-4 w-full min-h-0">
+    <div className="space-y-4 w-full max-w-5xl mx-auto">
       {/* Carousel container */}
-      <div className="relative w-full overflow-hidden min-h-0">
+      <div className="relative w-full overflow-hidden">
+        {/* Images container with translateX */}
         <div
-          ref={scrollContainerRef}
-          className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-2"
+          className="flex transition-transform duration-500 ease-in-out"
+          style={{
+            transform: `translateX(-${currentIndex * 100}%)`,
+          }}
         >
           {displayImages.map((image, index) => (
             <div
               key={image.id}
-              className="flex-shrink-0 w-[90%] sm:w-[75%] md:w-[85%] lg:w-[80%] snap-start max-w-full"
+              className="w-full flex-shrink-0"
             >
               <div className="relative w-full aspect-[4/3] max-h-[400px] overflow-hidden rounded-xl sm:rounded-2xl bg-gray-100 shadow-lg">
                 <img
                   src={image.url}
                   alt={image.title}
                   className="w-full h-full object-cover"
-                  loading="lazy"
+                  loading={index === currentIndex ? 'eager' : 'lazy'}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-5 lg:p-6">
@@ -375,7 +374,43 @@ function NatureImagesCarousel({ images, feeling }: { images: SessionItem[]; feel
           ))}
         </div>
 
-        {/* Navigation dots - Pinterest style */}
+        {/* Previous/Next navigation buttons */}
+        {displayImages.length > 1 && (
+          <>
+            <button
+              onClick={handlePrevious}
+              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white rounded-full p-2 sm:p-3 shadow-lg transition-all hover:scale-110"
+              aria-label="Previous image"
+            >
+              <svg
+                className="w-5 h-5 sm:w-6 sm:h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                style={{ color: 'rgb(17, 24, 39)' }}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={handleNext}
+              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white rounded-full p-2 sm:p-3 shadow-lg transition-all hover:scale-110"
+              aria-label="Next image"
+            >
+              <svg
+                className="w-5 h-5 sm:w-6 sm:h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                style={{ color: 'rgb(17, 24, 39)' }}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </>
+        )}
+
+        {/* Navigation dots */}
         {displayImages.length > 1 && (
           <div className="flex justify-center gap-2 mt-4">
             {displayImages.map((_, index) => (
@@ -393,7 +428,6 @@ function NatureImagesCarousel({ images, feeling }: { images: SessionItem[]; feel
           </div>
         )}
       </div>
-
     </div>
   );
 }
