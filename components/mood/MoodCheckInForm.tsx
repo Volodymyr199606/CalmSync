@@ -2,13 +2,12 @@
 
 /**
  * MoodCheckInForm - Client component for mood check-in
- * Allows user to select feeling, severity, and optional notes
+ * Allows user to select feeling and optional notes
  * Submits to /api/mood then fetches experience from /api/experience
  */
 
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import type { Feeling } from '@/types/domain';
@@ -31,11 +30,12 @@ const feelings: Array<{
 
 export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps) {
   const [selectedFeeling, setSelectedFeeling] = useState<Feeling | null>(null);
-  const [severity, setSeverity] = useState<number>(5);
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const intensityLabelId = useId();
+  
+  // Default severity value (backend requires it)
+  const severity = 5;
 
   const handleFeelingSelect = (feeling: Feeling) => {
     setSelectedFeeling(feeling);
@@ -97,7 +97,6 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
 
       // Reset form
       setSelectedFeeling(null);
-      setSeverity(5);
       setNotes('');
 
     } catch (err) {
@@ -149,33 +148,6 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
                 </span>
               </button>
             ))}
-          </div>
-        </div>
-
-        {/* Severity slider */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <label id={intensityLabelId} className="block text-sm font-medium" style={{ color: 'rgb(55, 65, 81)' }}>
-              Intensity level
-            </label>
-            <span className="rounded-full px-3 py-1 text-sm font-semibold" style={{ backgroundColor: 'rgb(243, 244, 246)', color: 'rgb(17, 24, 39)' }}>
-              {severity}/10
-            </span>
-          </div>
-          <Slider
-            aria-label="Intensity level"
-            aria-labelledby={intensityLabelId}
-            value={[severity]}
-            onValueChange={(values) => setSeverity(values[0])}
-            min={1}
-            max={10}
-            step={1}
-            className="w-full"
-          />
-          <div className="flex justify-between text-xs" style={{ color: 'rgb(107, 114, 128)' }}>
-            <span>Mild</span>
-            <span>Moderate</span>
-            <span>Severe</span>
           </div>
         </div>
 

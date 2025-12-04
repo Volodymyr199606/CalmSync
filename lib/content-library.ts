@@ -105,9 +105,9 @@ const music: ContentItem[] = [
   {
     id: "music-lofi-1",
     type: "MUSIC",
-    title: "Lofi Study Beats",
+    title: "Calm",
     url: "/audio/lofi-1.mp3",
-    description: "Gentle lofi music for focus and calm",
+    description: "Breathe",
     feeling: "STRESS",
     tags: ["lofi", "chill", "study", "focus"],
     license: {

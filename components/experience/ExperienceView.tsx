@@ -155,12 +155,6 @@ function MusicPlayer({ item }: { item: SessionItem }) {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h3 className="font-semibold" style={{ color: 'rgb(17, 24, 39)' }}>{item.title}</h3>
-        {item.description && (
-          <p className="text-sm" style={{ color: 'rgb(75, 85, 99)' }}>{item.description}</p>
-        )}
-      </div>
       <div className="space-y-2">
           <audio 
             ref={audioRef}
@@ -177,23 +171,6 @@ function MusicPlayer({ item }: { item: SessionItem }) {
           >
             Your browser does not support the audio element.
           </audio>
-          
-          {/* Show play button if autoplay was blocked */}
-          {showPlayButton && !isPlaying && (
-            <Button
-              onClick={handlePlayClick}
-              className="w-full"
-              style={{
-                backgroundColor: 'rgb(147, 51, 234)',
-                color: 'white'
-              }}
-            >
-              <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-              </svg>
-              Click to Play Music
-            </Button>
-          )}
 
           {error && (
             <div className="space-y-1">
@@ -364,14 +341,6 @@ function NatureImagesCarousel({ images, feeling }: { images: SessionItem[]; feel
 
   return (
     <div className="space-y-4 w-full min-h-0">
-      {/* Title with highlighted text - Pinterest style */}
-      <div className="text-center px-2">
-        <h3 className="text-lg sm:text-xl md:text-2xl font-semibold">
-          <span style={{ color: 'rgb(17, 24, 39)' }}>Get your next </span>
-          <span style={{ color: 'rgb(14, 165, 233)' }}>calming nature idea</span>
-        </h3>
-      </div>
-
       {/* Carousel container */}
       <div className="relative w-full overflow-hidden min-h-0">
         <div
@@ -524,20 +493,6 @@ export function ExperienceView({ session, items }: ExperienceViewProps) {
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      {/* Header with session info */}
-      <Card className="p-3 sm:p-4 bg-white/95 backdrop-blur-sm border-0 shadow-xl">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-base font-semibold sm:text-lg" style={{ color: 'rgb(17, 24, 39)' }}>
-              Your Relaxation Experience
-            </h2>
-            <p className="mt-0.5 text-xs sm:text-sm" style={{ color: 'rgb(75, 85, 99)' }}>
-              {session.durationMinutes} minutes • {session.feeling.toLowerCase()} relief
-            </p>
-          </div>
-        </div>
-      </Card>
-
       {/* Primary content (video or music) */}
       {primaryContent && (
         <MediaPlayer item={primaryContent} />
