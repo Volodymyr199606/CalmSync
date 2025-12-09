@@ -132,7 +132,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
           <DesktopNav />
 
           {/* Mobile Hamburger Menu - Right */}
-          <div className="md:hidden">
+          <div className="relative md:hidden">
             <MobileMenu
               userEmail={userEmail}
               userInitial={userInitial}

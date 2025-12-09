@@ -8,7 +8,17 @@ export const authConfig: NextAuthConfig = {
       from: process.env.EMAIL_FROM || "onboarding@resend.dev",
       apiKey: process.env.RESEND_API_KEY,
       sendVerificationRequest: async ({ identifier, url }) => {
-        await sendMagicLinkEmail(identifier, url);
+        try {
+          await sendMagicLinkEmail(identifier, url);
+        } catch (error) {
+          // Log error with context
+          console.error("Error in sendVerificationRequest:", {
+            identifier,
+            error: error instanceof Error ? error.message : String(error),
+          });
+          // Re-throw to let NextAuth handle it properly
+          throw error;
+        }
       },
     }),
   ],

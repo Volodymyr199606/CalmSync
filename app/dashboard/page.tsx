@@ -81,11 +81,12 @@ export default async function DashboardPage() {
   }
 
   // 4. Render client component with server data
+  // Note: We don't auto-load last session - user must complete check-in to see experience
   return (
     <DashboardClient
       user={user}
-      initialSession={lastSession}
-      initialItems={lastSessionItems || []}
+      initialSession={null}
+      initialItems={[]}
     />
   );
 }

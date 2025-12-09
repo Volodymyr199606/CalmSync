@@ -3,8 +3,12 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendMagicLinkEmail(to: string, url: string) {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY is not configured. Please set it in your environment variables.");
+  }
+
   try {
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: process.env.EMAIL_FROM || "onboarding@resend.dev",
       to,
       subject: "Sign in to CalmSync",
@@ -63,10 +67,24 @@ export async function sendMagicLinkEmail(to: string, url: string) {
         </html>
       `,
     });
-    return { success: true };
+
+    // Check if the API returned an error
+    if (result.error) {
+      console.error("Resend API error:", result.error);
+      throw new Error(
+        result.error.message || "Failed to send magic link email. Please check your Resend API configuration."
+      );
+    }
   } catch (error) {
     console.error("Failed to send magic link email:", error);
-    return { success: false, error };
+    
+    // Re-throw with more context if it's not already an Error
+    if (error instanceof Error) {
+      throw error;
+    }
+    
+    // Handle unknown error types
+    throw new Error("Failed to send magic link email. Please try again.");
   }
 }
 

@@ -31,21 +31,21 @@ function BreathingAnimation() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-4 py-8">
-      <div className="relative flex h-32 w-32 items-center justify-center sm:h-40 sm:w-40">
+    <div className="flex flex-col items-center justify-center space-y-4 py-6">
+      <div className="relative flex h-40 w-40 items-center justify-center md:h-48 md:w-48">
         {/* Animated circle */}
         <div
           className={`
-            absolute inset-0 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 opacity-60 transition-transform duration-[4000ms] ease-in-out
+            h-40 w-40 md:h-48 md:w-48 rounded-full bg-gradient-to-br from-sky-300/70 via-purple-400/70 to-violet-400/70 shadow-lg ring-4 ring-white/50 transition-transform duration-[4000ms] ease-in-out
             ${isInhaling ? 'scale-100' : 'scale-50'}
           `}
         />
         {/* Center text */}
-        <span className="relative z-10 text-sm font-medium text-white sm:text-base">
+        <span className="absolute z-10 text-xl font-semibold text-slate-800">
           {isInhaling ? 'Breathe In' : 'Breathe Out'}
         </span>
       </div>
-      <p className="text-xs sm:text-sm" style={{ color: 'rgb(75, 85, 99)' }}>
+      <p className="text-sm text-slate-600 text-center">
         Follow the circle to regulate your breathing
       </p>
     </div>
@@ -195,7 +195,7 @@ function MusicPlayer({ item }: { item: SessionItem }) {
 function MediaPlayer({ item }: { item: SessionItem }) {
   if (item.contentType === 'NATURE_VIDEO' && item.url) {
     return (
-      <div className="aspect-video w-full overflow-hidden rounded-lg bg-gray-900">
+      <div className="aspect-video w-full overflow-hidden rounded-2xl bg-slate-900">
         <iframe
           src={item.url}
           title={item.title}
@@ -208,7 +208,14 @@ function MediaPlayer({ item }: { item: SessionItem }) {
   }
 
   if (item.contentType === 'MUSIC' && item.url) {
-    return <MusicPlayer item={item} />;
+    return (
+      <div className="space-y-2">
+        {item.title && (
+          <h3 className="text-sm font-medium text-slate-700">{item.title}</h3>
+        )}
+        <MusicPlayer item={item} />
+      </div>
+    );
   }
 
   return null;
@@ -219,23 +226,20 @@ function MediaPlayer({ item }: { item: SessionItem }) {
  */
 function TextPrompt({ item }: { item: SessionItem }) {
   return (
-    <Card 
-      className="p-4 sm:p-6 bg-white/95 backdrop-blur-sm border-0 shadow-lg"
-      style={{
-        background: 'linear-gradient(to bottom right, rgb(238, 242, 255), rgb(250, 245, 255))'
-      }}
-    >
+    <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl p-4 text-sm text-slate-700">
       <div className="space-y-2">
-        <h3 className="text-base font-semibold sm:text-lg" style={{ color: 'rgb(17, 24, 39)' }}>
-          {item.title}
-        </h3>
+        {item.title && (
+          <h3 className="font-semibold text-slate-900">
+            {item.title}
+          </h3>
+        )}
         {item.description && (
-          <p className="text-sm leading-relaxed sm:text-base" style={{ color: 'rgb(55, 65, 81)' }}>
+          <p className="leading-relaxed">
             {item.description}
           </p>
         )}
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -336,9 +340,9 @@ function NatureImagesCarousel({ images, feeling }: { images: SessionItem[]; feel
   }, [displayImages.length]);
 
   return (
-    <div className="space-y-4 w-full max-w-5xl mx-auto">
+    <div className="space-y-4 w-full">
       {/* Carousel container */}
-      <div className="relative w-full overflow-hidden">
+      <div className="relative w-full overflow-hidden rounded-2xl">
         {/* Images container with translateX */}
         <div
           className="flex transition-transform duration-500 ease-in-out"
@@ -351,7 +355,7 @@ function NatureImagesCarousel({ images, feeling }: { images: SessionItem[]; feel
               key={image.id}
               className="w-full flex-shrink-0"
             >
-              <div className="relative w-full aspect-[4/3] max-h-[400px] overflow-hidden rounded-xl sm:rounded-2xl bg-gray-100 shadow-lg">
+              <div className="relative w-full aspect-video overflow-hidden bg-slate-100">
                 <img
                   src={image.url}
                   alt={image.title}
@@ -359,12 +363,12 @@ function NatureImagesCarousel({ images, feeling }: { images: SessionItem[]; feel
                   loading={index === currentIndex ? 'eager' : 'lazy'}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-5 lg:p-6">
-                  <p className="text-sm sm:text-base md:text-lg font-semibold text-white">
+                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+                  <p className="text-base md:text-lg font-semibold text-white">
                     {image.title}
                   </p>
                   {image.description && (
-                    <p className="text-xs sm:text-sm text-white/90 mt-0.5 sm:mt-1">
+                    <p className="text-sm text-white/90 mt-1">
                       {image.description}
                     </p>
                   )}
@@ -379,30 +383,28 @@ function NatureImagesCarousel({ images, feeling }: { images: SessionItem[]; feel
           <>
             <button
               onClick={handlePrevious}
-              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white rounded-full p-2 sm:p-3 shadow-lg transition-all hover:scale-110"
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 shadow-md rounded-full p-2 hover:bg-white transition-all"
               aria-label="Previous image"
             >
               <svg
-                className="w-5 h-5 sm:w-6 sm:h-6"
+                className="w-5 h-5 text-slate-900"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                style={{ color: 'rgb(17, 24, 39)' }}
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <button
               onClick={handleNext}
-              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white rounded-full p-2 sm:p-3 shadow-lg transition-all hover:scale-110"
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 shadow-md rounded-full p-2 hover:bg-white transition-all"
               aria-label="Next image"
             >
               <svg
-                className="w-5 h-5 sm:w-6 sm:h-6"
+                className="w-5 h-5 text-slate-900"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                style={{ color: 'rgb(17, 24, 39)' }}
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -419,8 +421,8 @@ function NatureImagesCarousel({ images, feeling }: { images: SessionItem[]; feel
                 onClick={() => setCurrentIndex(index)}
                 className={`h-2 rounded-full transition-all duration-300 ${
                   index === currentIndex
-                    ? 'w-8 bg-sky-500'
-                    : 'w-2 bg-gray-300 hover:bg-gray-400'
+                    ? 'w-8 bg-purple-500'
+                    : 'w-2 bg-slate-300 hover:bg-slate-400'
                 }`}
                 aria-label={`Go to image ${index + 1}`}
               />
@@ -511,10 +513,9 @@ function LoadingState() {
  * Main ExperienceView component
  */
 export function ExperienceView({ session, items }: ExperienceViewProps) {
-
-  // Show empty state if no session
+  // Guard: return null if no session (experience should only render after check-in)
   if (!session) {
-    return <EmptyState />;
+    return null;
   }
 
   // Find different content types
@@ -526,31 +527,42 @@ export function ExperienceView({ session, items }: ExperienceViewProps) {
   const textPrompts = items.filter((item) => item.contentType === 'TEXT');
 
   return (
-    <div className="space-y-3 sm:space-y-4">
+    <div className="space-y-6">
+      {/* Experience header */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        <h2 className="text-xl font-semibold text-slate-900">Your Personalized Experience</h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Curated just for you based on your current state
+        </p>
+      </div>
+
       {/* Primary content (video or music) */}
       {primaryContent && (
-        <MediaPlayer item={primaryContent} />
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <MediaPlayer item={primaryContent} />
+        </div>
       )}
 
-      {/* Pinterest-style nature images carousel - always show for inspiration */}
-      <Card className="p-4 sm:p-6 bg-white/95 backdrop-blur-sm border-0 shadow-xl">
-        <NatureImagesCarousel images={backgroundImages} feeling={session.feeling} />
-      </Card>
+      {/* Nature images carousel */}
+      {backgroundImages.length > 0 && (
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <NatureImagesCarousel images={backgroundImages} feeling={session.feeling} />
+        </div>
+      )}
 
       {/* Breathing animation */}
-      <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl">
+      <div className="bg-gradient-to-br from-sky-50 to-violet-50 rounded-2xl shadow-sm border border-slate-200 p-6">
         <BreathingAnimation />
-      </Card>
+      </div>
 
       {/* Text prompts */}
       {textPrompts.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {textPrompts.map((prompt) => (
             <TextPrompt key={prompt.id} item={prompt} />
           ))}
         </div>
       )}
-
     </div>
   );
 }

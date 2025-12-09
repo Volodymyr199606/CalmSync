@@ -26,10 +26,9 @@ export function DashboardClient({
   initialSession,
   initialItems,
 }: DashboardClientProps) {
-  const [currentSession, setCurrentSession] = useState<RelaxationSession | null>(
-    initialSession
-  );
-  const [currentItems, setCurrentItems] = useState<SessionItem[]>(initialItems);
+  // Start with null session - only show experience after user submits check-in
+  const [currentSession, setCurrentSession] = useState<RelaxationSession | null>(null);
+  const [currentItems, setCurrentItems] = useState<SessionItem[]>([]);
 
   const handleExperienceGenerated = (data: {
     session: RelaxationSession;
@@ -40,28 +39,32 @@ export function DashboardClient({
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="max-w-6xl mx-auto px-4 md:px-8 lg:px-10 py-10 bg-gradient-to-b from-white to-slate-50 min-h-screen">
       {/* Welcome header */}
-      <div>
-        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl md:text-3xl">
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold text-slate-900">
           Welcome back{user.name ? `, ${user.name}` : ''}
         </h1>
-        <p className="mt-1 text-xs text-gray-600 sm:text-sm md:text-base">
+        <p className="mt-1 text-sm text-slate-500">
           Take a moment to check in with yourself
         </p>
       </div>
 
       {/* Responsive layout: single-column on mobile, two-column on md+ */}
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 md:grid-cols-[340px_1fr] gap-8">
         {/* Mood Check-In Form */}
-        <div className="md:sticky md:top-20 md:self-start">
+        <div className="md:sticky md:top-8 md:self-start">
           <MoodCheckInForm onExperienceGenerated={handleExperienceGenerated} />
         </div>
 
-        {/* Experience View */}
-        <div>
-          <ExperienceView session={currentSession} items={currentItems} />
-        </div>
+        {/* Experience View - Only render if session exists */}
+        {currentSession ? (
+          <div>
+            <ExperienceView session={currentSession} items={currentItems} />
+          </div>
+        ) : (
+          <div className="hidden md:block" />
+        )}
       </div>
     </div>
   );
