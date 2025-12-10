@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
-import type { SVGProps } from "react";
-import { cn } from "@/lib/utils";
+import type { SVGProps } from "react"
+import { cn } from "@/lib/utils"
 
 interface CalmSyncLogoProps extends SVGProps<SVGSVGElement> {
-  className?: string;
-  animated?: boolean;
+  className?: string
+  animated?: boolean
 }
 
 /**
@@ -18,11 +18,7 @@ export function CalmSyncLogo({ className, animated = true, ...props }: CalmSyncL
       viewBox="0 0 64 64"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={cn(
-        "h-[64px] w-[64px] text-primary",
-        animated && "animate-breathe",
-        className
-      )}
+      className={cn("h-[64px] w-[64px] text-primary", animated && "animate-breathe", className)}
       {...props}
     >
       {/* Outer ring - lighter sage */}
@@ -48,21 +44,9 @@ export function CalmSyncLogo({ className, animated = true, ...props }: CalmSyncL
         className="text-sage-500"
       />
       {/* Inner circle - solid sage */}
-      <circle
-        cx="32"
-        cy="32"
-        r="12"
-        fill="currentColor"
-        className="text-sage-600"
-      />
+      <circle cx="32" cy="32" r="12" fill="currentColor" className="text-sage-600" />
       {/* Subtle highlight on inner circle */}
-      <circle
-        cx="32"
-        cy="32"
-        r="8"
-        fill="white"
-        opacity="0.2"
-      />
+      <circle cx="32" cy="32" r="8" fill="white" opacity="0.2" />
     </svg>
-  );
+  )
 }

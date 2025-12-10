@@ -1,11 +1,10 @@
 "use client"
 
-import type React from "react"
-
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { ArrowUpRight, Clock, Download, Flame, Plus, Smile, TrendingUp } from "lucide-react"
+import { ArrowUpRight, Clock, Download, Flame, Plus, Smile, Sparkles, TrendingUp } from "lucide-react"
 import { useRouter } from "next/navigation"
+import type React from "react"
 
 interface MoodDistributionItem {
   mood: string
@@ -42,6 +41,36 @@ interface HistoryClientProps {
 
 export function HistoryClient({ stats, moodDistribution, historyEntries, totalEntries }: HistoryClientProps) {
   const router = useRouter()
+
+  const hasNoData = stats.totalSessions === 0 && historyEntries.length === 0
+
+  if (hasNoData) {
+    return (
+      <div className="flex min-h-[calc(100vh-200px)] items-center justify-center bg-background px-4">
+        <div className="mx-auto max-w-md space-y-8 text-center">
+          {/* Icon */}
+          <div className="mx-auto flex h-24 w-24 items-center justify-center">
+            <Sparkles className="h-16 w-16 text-muted-foreground/40" strokeWidth={1.5} />
+          </div>
+
+          {/* Content */}
+          <div className="space-y-3">
+            <h1 className="text-balance text-4xl font-bold tracking-tight">Your History</h1>
+            <p className="text-pretty text-lg text-muted-foreground">Track your journey to calm</p>
+          </div>
+
+          <p className="text-pretty text-muted-foreground">
+            No sessions yet. Start your first relaxation experience to begin tracking your progress.
+          </p>
+
+          {/* CTA Button */}
+          <Button size="lg" className="mt-4 rounded-full px-8" onClick={() => router.push("/dashboard")}>
+            Begin Journey
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   const getMoodEmoji = (mood: string) => {
     switch (mood) {
@@ -151,35 +180,37 @@ export function HistoryClient({ stats, moodDistribution, historyEntries, totalEn
                   {/* Donut Chart */}
                   <div className="relative mx-auto h-48 w-48 shrink-0">
                     <svg viewBox="0 0 200 200" className="h-full w-full -rotate-90 transform">
-                      {moodDistribution.reduce(
-                        (acc, item) => {
-                          const { segments, currentOffset } = acc
-                          const circumference = 2 * Math.PI * 70
-                          const segmentLength = (item.percentage / 100) * circumference
-                          const strokeDasharray = `${segmentLength} ${circumference - segmentLength}`
+                      {
+                        moodDistribution.reduce(
+                          (acc, item) => {
+                            const { segments, currentOffset } = acc
+                            const circumference = 2 * Math.PI * 70
+                            const segmentLength = (item.percentage / 100) * circumference
+                            const strokeDasharray = `${segmentLength} ${circumference - segmentLength}`
 
-                          segments.push(
-                            <circle
-                              key={item.mood}
-                              cx="100"
-                              cy="100"
-                              r="70"
-                              fill="none"
-                              stroke={item.color}
-                              strokeWidth="24"
-                              strokeDasharray={strokeDasharray}
-                              strokeDashoffset={-currentOffset}
-                              className="transition-all duration-300"
-                            />,
-                          )
+                            segments.push(
+                              <circle
+                                key={item.mood}
+                                cx="100"
+                                cy="100"
+                                r="70"
+                                fill="none"
+                                stroke={item.color}
+                                strokeWidth="24"
+                                strokeDasharray={strokeDasharray}
+                                strokeDashoffset={-currentOffset}
+                                className="transition-all duration-300"
+                              />,
+                            )
 
-                          return {
-                            segments,
-                            currentOffset: currentOffset + segmentLength,
-                          }
-                        },
-                        { segments: [] as React.ReactNode[], currentOffset: 0 },
-                      ).segments}
+                            return {
+                              segments,
+                              currentOffset: currentOffset + segmentLength,
+                            }
+                          },
+                          { segments: [] as React.ReactNode[], currentOffset: 0 },
+                        ).segments
+                      }
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                       <span className="text-3xl font-bold">{totalEntries}</span>
@@ -212,10 +243,7 @@ export function HistoryClient({ stats, moodDistribution, historyEntries, totalEn
             <Card className="p-6">
               <h2 className="mb-6 text-xl font-semibold">Quick Actions</h2>
               <div className="space-y-3">
-                <Button
-                  className="w-full justify-start gap-3"
-                  onClick={() => router.push("/dashboard")}
-                >
+                <Button className="w-full justify-start gap-3" onClick={() => router.push("/dashboard")}>
                   <div className="rounded-full bg-primary-foreground/20 p-1">
                     <Plus className="h-4 w-4" />
                   </div>
@@ -301,7 +329,9 @@ export function HistoryClient({ stats, moodDistribution, historyEntries, totalEn
           ) : (
             <Card className="p-12 text-center">
               <p className="text-muted-foreground">No history entries yet.</p>
-              <p className="mt-2 text-sm text-muted-foreground">Complete a mood check-in to start tracking your journey.</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Complete a mood check-in to start tracking your journey.
+              </p>
             </Card>
           )}
         </div>
@@ -309,4 +339,3 @@ export function HistoryClient({ stats, moodDistribution, historyEntries, totalEn
     </div>
   )
 }
-
