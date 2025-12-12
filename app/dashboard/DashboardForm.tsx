@@ -1,16 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { NavigationHeader } from "@/components/navigation-header"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 
-interface DashboardFormProps {
-  userName?: string | null
-  userEmail?: string | null
-}
-
-export function DashboardForm({ userName, userEmail }: DashboardFormProps) {
+export function DashboardForm() {
   const [feeling, setFeeling] = useState<string | null>(null)
   const [intensity, setIntensity] = useState(5)
   const [notes, setNotes] = useState("")
@@ -22,28 +16,8 @@ export function DashboardForm({ userName, userEmail }: DashboardFormProps) {
     { id: "frustration", emoji: "😤", label: "Frustration" },
   ]
 
-  // Calculate user initials
-  const userInitials = userName
-    ? userName
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-    : userEmail
-      ? userEmail.slice(0, 2).toUpperCase()
-      : "U"
-
-  const displayName = userName || userEmail || "User"
-
   return (
     <div className="min-h-screen bg-[#FAF9F6]">
-      <NavigationHeader
-        userName={displayName}
-        userInitials={userInitials}
-        userEmail={userEmail || undefined}
-      />
-
       <main className="container mx-auto px-4 py-12 max-w-2xl">
         <div className="space-y-12">
           {/* Header */}

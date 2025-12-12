@@ -29,19 +29,19 @@ export default async function SettingsPage() {
       {/* Account Information */}
       <Card className="p-6 mb-6">
         <h2 className="text-2xl font-semibold mb-4">Account Information</h2>
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+            <label className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2 block">
               Email
             </label>
-            <p className="text-gray-900 dark:text-gray-100">{session.user.email}</p>
+            <p className="text-base font-medium text-gray-800 dark:text-gray-200">{session.user.email}</p>
           </div>
           {session.user.name && (
             <div>
-              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <label className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2 block">
                 Name
               </label>
-              <p className="text-gray-900 dark:text-gray-100">{session.user.name}</p>
+              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{session.user.name}</p>
             </div>
           )}
         </div>

@@ -10,10 +10,5 @@ export default async function DashboardPage() {
     redirect('/api/auth/signin')
   }
 
-  return (
-    <DashboardForm
-      userName={session.user.name || null}
-      userEmail={session.user.email || null}
-    />
-  )
+  return <DashboardForm />
 }
