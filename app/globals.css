@@ -1,74 +1,77 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.98 0.005 120);
-  --foreground: oklch(0.25 0.015 120);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.25 0.015 120);
+  --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.25 0.015 120);
-  --primary: oklch(0.55 0.12 160);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.92 0.015 120);
-  --secondary-foreground: oklch(0.25 0.015 120);
-  --muted: oklch(0.94 0.01 120);
-  --muted-foreground: oklch(0.5 0.01 120);
-  --accent: oklch(0.85 0.08 180);
-  --accent-foreground: oklch(0.25 0.015 120);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.9 0.01 120);
-  --input: oklch(0.9 0.01 120);
-  --ring: oklch(0.55 0.12 160);
-  --chart-1: oklch(0.65 0.15 160);
-  --chart-2: oklch(0.7 0.12 200);
-  --chart-3: oklch(0.6 0.1 140);
-  --chart-4: oklch(0.75 0.08 180);
-  --chart-5: oklch(0.68 0.13 150);
-  --radius: 0.75rem;
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.25 0.015 120);
-  --sidebar-primary: oklch(0.55 0.12 160);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.94 0.01 120);
-  --sidebar-accent-foreground: oklch(0.25 0.015 120);
-  --sidebar-border: oklch(0.9 0.01 120);
-  --sidebar-ring: oklch(0.55 0.12 160);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
 }
 
 .dark {
-  --background: oklch(0.15 0.015 180);
-  --foreground: oklch(0.95 0.01 120);
-  --card: oklch(0.18 0.015 180);
-  --card-foreground: oklch(0.95 0.01 120);
-  --popover: oklch(0.18 0.015 180);
-  --popover-foreground: oklch(0.95 0.01 120);
-  --primary: oklch(0.65 0.15 160);
-  --primary-foreground: oklch(0.15 0.015 180);
-  --secondary: oklch(0.25 0.02 180);
-  --secondary-foreground: oklch(0.95 0.01 120);
-  --muted: oklch(0.25 0.02 180);
-  --muted-foreground: oklch(0.6 0.02 160);
-  --accent: oklch(0.3 0.05 180);
-  --accent-foreground: oklch(0.95 0.01 120);
-  --destructive: oklch(0.45 0.15 30);
-  --destructive-foreground: oklch(0.95 0.01 120);
-  --border: oklch(0.25 0.02 180);
-  --input: oklch(0.25 0.02 180);
-  --ring: oklch(0.65 0.15 160);
-  --chart-1: oklch(0.65 0.15 160);
-  --chart-2: oklch(0.7 0.12 200);
-  --chart-3: oklch(0.6 0.1 140);
-  --chart-4: oklch(0.75 0.08 180);
-  --chart-5: oklch(0.68 0.13 150);
-  --sidebar: oklch(0.18 0.015 180);
-  --sidebar-foreground: oklch(0.95 0.01 120);
-  --sidebar-primary: oklch(0.65 0.15 160);
-  --sidebar-primary-foreground: oklch(0.15 0.015 180);
-  --sidebar-accent: oklch(0.25 0.02 180);
-  --sidebar-accent-foreground: oklch(0.95 0.01 120);
-  --sidebar-border: oklch(0.25 0.02 180);
-  --sidebar-ring: oklch(0.65 0.15 160);
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
 }
 
 @theme inline {
@@ -121,17 +124,336 @@
   }
 }
 
-@layer theme {
-  :root {
-    --sage-500: #5C926A;
+/* Added custom animations for landing page */
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-30px) translateX(10px);
+    opacity: 0.6;
+  }
+}
+
+@keyframes float-medium {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-20px) translateX(-10px);
+    opacity: 0.7;
+  }
+}
+
+@keyframes float-fast {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateY(-15px) translateX(15px);
+    opacity: 0.5;
   }
 }
 
 @keyframes breathe {
-  0%, 100% {
-    opacity: 1;
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.3;
   }
   50% {
-    opacity: 0.7;
+    transform: scale(1.1);
+    opacity: 0.6;
   }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.2;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.4;
+  }
+}
+
+@keyframes pulse-slow {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: float-medium 6s ease-in-out infinite;
+}
+
+.animate-float-fast {
+  animation: float-fast 4s ease-in-out infinite;
+}
+
+.animate-breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 6s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out;
+}
+
+.delay-500 {
+  animation-delay: 0.5s;
+}
+
+.delay-1000 {
+  animation-delay: 1s;
+}
+
+.delay-2000 {
+  animation-delay: 2s;
+}
+
+.delay-3000 {
+  animation-delay: 3s;
+}
+
+/* Adding wave animations for gradient-waves variation */
+@keyframes wave-slow {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(20px, -20px) scale(1.05);
+  }
+}
+
+@keyframes wave-medium {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-15px, 15px) scale(1.03);
+  }
+}
+
+@keyframes wave-fast {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(10px, 10px) scale(1.02);
+  }
+}
+
+/* Adding wave animations for gradient orbs */
+@keyframes wave-1 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.15;
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.1);
+    opacity: 0.2;
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+    opacity: 0.1;
+  }
+}
+
+@keyframes wave-2 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 0.1;
+  }
+  33% {
+    transform: translate(-25px, 25px) scale(1.05) rotate(90deg);
+    opacity: 0.15;
+  }
+  66% {
+    transform: translate(15px, -15px) scale(0.9) rotate(180deg);
+    opacity: 0.08;
+  }
+}
+
+@keyframes wave-3 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.08;
+  }
+  50% {
+    transform: translate(20px, 20px) scale(1.08);
+    opacity: 0.12;
+  }
+}
+
+/* Adding leaf-fall animations for nature-leaves variation */
+@keyframes leaf-fall-1 {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.4;
+  }
+  90% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(100vh) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+@keyframes leaf-fall-2 {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.5;
+  }
+  90% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(100vh) rotate(-200deg);
+    opacity: 0;
+  }
+}
+
+@keyframes leaf-fall-3 {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(100vh) rotate(160deg);
+    opacity: 0;
+  }
+}
+
+@keyframes leaf-fall-4 {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.4;
+  }
+  90% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(100vh) rotate(-180deg);
+    opacity: 0;
+  }
+}
+
+@keyframes leaf-fall-5 {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.5;
+  }
+  90% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(100vh) rotate(220deg);
+    opacity: 0;
+  }
+}
+
+/* Adding animation utility classes */
+.animate-wave-slow {
+  animation: wave-slow 20s ease-in-out infinite;
+}
+
+.animate-wave-medium {
+  animation: wave-medium 15s ease-in-out infinite;
+}
+
+.animate-wave-fast {
+  animation: wave-fast 10s ease-in-out infinite;
+}
+
+/* Adding utility classes for new wave animations */
+.animate-wave-1 {
+  animation: wave-1 25s ease-in-out infinite;
+}
+
+.animate-wave-2 {
+  animation: wave-2 30s ease-in-out infinite;
+}
+
+.animate-wave-3 {
+  animation: wave-3 35s ease-in-out infinite;
+}
+
+.animate-leaf-fall-1 {
+  animation: leaf-fall-1 15s linear infinite;
+}
+
+.animate-leaf-fall-2 {
+  animation: leaf-fall-2 18s linear infinite;
+}
+
+.animate-leaf-fall-3 {
+  animation: leaf-fall-3 20s linear infinite;
+}
+
+.animate-leaf-fall-4 {
+  animation: leaf-fall-4 17s linear infinite;
+}
+
+.animate-leaf-fall-5 {
+  animation: leaf-fall-5 22s linear infinite;
 }

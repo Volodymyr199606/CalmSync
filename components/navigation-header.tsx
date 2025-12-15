@@ -45,7 +45,7 @@ export function NavigationHeader({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 h-9 rounded-full px-3">
                 <Avatar className="h-7 w-7">
-                  <AvatarImage src={userImage || "/placeholder.svg"} alt={userName} />
+                  <AvatarImage src={userImage || undefined} alt={userName} />
                   <AvatarFallback className="text-xs font-medium bg-muted">{userInitials}</AvatarFallback>
                 </Avatar>
                 <span className="hidden md:inline-block text-sm font-medium">{userName}</span>

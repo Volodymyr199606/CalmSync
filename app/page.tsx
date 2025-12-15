@@ -1,16 +1,38 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { submitEmail } from "@/app/actions/auth"
 import Link from "next/link"
+
+interface Particle {
+  id: string
+  top: string
+  left: string
+  delay: string
+  duration: string
+}
 
 export default function LandingPage() {
   const [email, setEmail] = useState("")
   const [isPending, setIsPending] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [particles, setParticles] = useState<Particle[]>([])
+
+  // Generate particles on client side only to avoid hydration mismatch
+  useEffect(() => {
+    const timestamp = Date.now()
+    const generatedParticles = Array.from({ length: 15 }).map((_, index) => ({
+      id: `particle-${timestamp}-${index}`,
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      delay: `${Math.random() * 5}s`,
+      duration: `${15 + Math.random() * 10}s`,
+    }))
+    setParticles(generatedParticles)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -78,15 +100,15 @@ export default function LandingPage() {
         <div className="absolute top-1/2 right-1/3 w-24 h-24 bg-[#4A9B7F]/8 rounded-full blur-xl animate-float-fast" />
 
         {/* Floating particles - more prominent */}
-        {Array.from({ length: 15 }).map((_, i) => (
+        {particles.map((particle) => (
           <div
-            key={i}
-            className="absolute w-1 h-1 bg-[#4A9B7F]/30 rounded-full animate-float-slow"
+            key={particle.id}
+            className="absolute w-1 h-1 bg-[#4A9B7F]/30 rounded-full animate-float-slow pointer-events-none"
             style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${15 + Math.random() * 10}s`,
+              top: particle.top,
+              left: particle.left,
+              animationDelay: particle.delay,
+              animationDuration: particle.duration,
             }}
           />
         ))}
