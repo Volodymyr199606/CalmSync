@@ -24,7 +24,7 @@ export default function LandingPage() {
   // Generate particles on client side only to avoid hydration mismatch
   useEffect(() => {
     const timestamp = Date.now()
-    const generatedParticles = Array.from({ length: 15 }).map((_, index) => ({
+    const generatedParticles = Array.from({ length: 75 }).map((_, index) => ({
       id: `particle-${timestamp}-${index}`,
       top: `${Math.random() * 100}%`,
       left: `${Math.random() * 100}%`,

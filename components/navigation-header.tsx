@@ -39,7 +39,7 @@ export function NavigationHeader({
         </Link>
 
         {/* Right side - User dropdown */}
-        <div className="flex items-center">
+        <div className="flex items-center" suppressHydrationWarning>
           {/* User Dropdown Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

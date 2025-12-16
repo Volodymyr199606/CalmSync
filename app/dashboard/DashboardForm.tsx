@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -18,6 +18,11 @@ export function DashboardForm() {
   const [backgroundImages, setBackgroundImages] = useState<GeneratedImage[]>([])
   const [imagesLoading, setImagesLoading] = useState(true)
   const [isMounted, setIsMounted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [shouldPlayMusic, setShouldPlayMusic] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const feelings = [
     { id: "stress", emoji: "😰", label: "Stress" },
@@ -25,6 +30,108 @@ export function DashboardForm() {
     { id: "depression", emoji: "😔", label: "Depression" },
     { id: "frustration", emoji: "😤", label: "Frustration" },
   ]
+
+  // Map feelings to music tracks
+  const feelingToMusic: Record<string, string> = {
+    stress: "/audio/lofi-1.mp3",
+    anxiety: "/audio/ambient-1.mp3",
+    depression: "/audio/piano-1.mp3",
+    frustration: "/audio/nature-1.mp3",
+  }
+
+  // Handle form submission - music only plays here, after user clicks "Create Relaxation Experience"
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!feeling) return
+
+    setIsSubmitting(true)
+
+    try {
+      // Submit to API to create experience FIRST
+      const response = await fetch("/api/experience", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          feeling: feeling.toUpperCase(),
+          severity: intensity,
+          notes: notes || undefined,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to create experience")
+      }
+
+      const data = await response.json()
+      
+      // ONLY AFTER successful API call, start playing background music based on feeling
+      if (data.success) {
+        const musicUrl = feelingToMusic[feeling]
+        if (musicUrl) {
+          setAudioUrl(musicUrl)
+          setIsPlaying(true)
+          setShouldPlayMusic(true)
+        }
+        
+        // Redirect to experience view or show success
+        if (data.data?.session) {
+          // Could redirect to experience page or show it inline
+          console.log("Experience created:", data.data)
+        }
+      }
+    } catch (error) {
+      console.error("Error creating experience:", error)
+      // Stop music on error
+      setIsPlaying(false)
+      setAudioUrl(null)
+      setShouldPlayMusic(false)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // Handle audio playback - ONLY plays when shouldPlayMusic is true (after button click)
+  useEffect(() => {
+    // Clean up previous audio if exists
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.src = ""
+      audioRef.current = null
+    }
+
+    // Only play if explicitly requested via button click
+    if (!audioUrl || !isPlaying || !shouldPlayMusic) return
+
+    const audio = new Audio(audioUrl)
+    audio.loop = true
+    audio.volume = 0.3 // Lower volume for background music
+    audioRef.current = audio
+    
+    const playPromise = audio.play()
+    
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          // Autoplay started successfully
+        })
+        .catch((error) => {
+          // Autoplay was prevented - user interaction required
+          console.log("Autoplay prevented:", error)
+          setIsPlaying(false)
+          audioRef.current = null
+        })
+    }
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.src = ""
+        audioRef.current = null
+      }
+    }
+  }, [audioUrl, isPlaying, shouldPlayMusic])
 
   // Set mounted state to avoid hydration mismatch
   useEffect(() => {
@@ -294,7 +401,7 @@ export function DashboardForm() {
           </div>
 
           {/* Content card with enhanced visual hierarchy */}
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-gray-200/80 shadow-2xl p-8 space-y-8 ring-1 ring-black/5">
+          <form onSubmit={handleSubmit} className="bg-white/95 backdrop-blur-md rounded-2xl border border-gray-200/80 shadow-2xl p-8 space-y-8 ring-1 ring-black/5">
             {/* Feeling selection */}
             <div className="space-y-4">
               <label className="text-sm font-medium text-gray-700">How are you feeling?</label>
@@ -302,6 +409,7 @@ export function DashboardForm() {
                 {feelings.map((item) => (
                   <button
                     key={item.id}
+                    type="button"
                     onClick={() => setFeeling(item.id)}
                     className={`
                       p-4 rounded-xl border transition-all
@@ -329,6 +437,7 @@ export function DashboardForm() {
                 {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
                   <button
                     key={num}
+                    type="button"
                     onClick={() => setIntensity(num)}
                     className={`
                       h-10 w-full rounded-lg text-sm font-medium transition-all shadow-sm
@@ -361,12 +470,39 @@ export function DashboardForm() {
 
             {/* Submit */}
             <Button
+              type="submit"
               className="w-full h-12 rounded-xl bg-[#3d8168] hover:bg-[#35705a] text-white font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98]"
-              disabled={!feeling}
+              disabled={!feeling || isSubmitting}
             >
-              Create Relaxation Experience
+              {isSubmitting ? "Creating Experience..." : "Create Relaxation Experience"}
             </Button>
-          </div>
+
+            {/* Background music indicator - ONLY shows when music is actually playing after button click */}
+            {isPlaying && audioUrl && shouldPlayMusic && (
+              <div className="p-3 bg-green-50 rounded-lg border border-green-200 flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-sm text-green-700">
+                  Playing ambient music...
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (audioRef.current) {
+                      audioRef.current.pause()
+                      audioRef.current.src = ""
+                      audioRef.current = null
+                    }
+                    setIsPlaying(false)
+                    setAudioUrl(null)
+                    setShouldPlayMusic(false)
+                  }}
+                  className="ml-auto text-sm text-green-600 hover:text-green-800 underline"
+                >
+                  Stop
+                </button>
+              </div>
+            )}
+          </form>
         </div>
       </main>
     </div>
