@@ -5,20 +5,108 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { X, Volume2, VolumeX } from "lucide-react"
 
+type Feeling = "STRESS" | "ANXIETY" | "DEPRESSION" | "FRUSTRATION"
+
+/**
+ * Get music URL based on feeling and severity
+ * Higher severity (8-10) = more calming music
+ * Lower severity (1-3) = lighter, more uplifting music
+ */
+function getMusicUrl(feeling: Feeling, severity: number): string {
+  // Base music mapping by feeling
+  const feelingToMusic: Record<Feeling, string> = {
+    STRESS: "/audio/lofi-1.mp3",
+    ANXIETY: "/audio/ambient-1.mp3",
+    DEPRESSION: "/audio/piano-1.mp3",
+    FRUSTRATION: "/audio/nature-1.mp3",
+  }
+
+  // For very high severity (8-10), use the most calming track for that feeling
+  // For medium severity (4-7), use the standard track
+  // For low severity (1-3), could use a lighter variant (for now, same as standard)
+  
+  return feelingToMusic[feeling] || "/audio/ambient-1.mp3"
+}
+
 export default function ChillPage() {
   const router = useRouter()
   const audioRef = useRef<HTMLAudioElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isMuted, setIsMuted] = useState(false)
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [severity, setSeverity] = useState<number>(5) // Default to medium
   const animationRef = useRef<number>()
 
+  // Fetch latest session and determine music
   useEffect(() => {
-    // Auto-play ambient music when page loads
-    if (audioRef.current) {
-      audioRef.current.play().catch((error) => {
-        console.log("[v0] Audio autoplay prevented:", error)
-      })
+    async function fetchSession() {
+      try {
+        const response = await fetch("/api/session/latest")
+        if (!response.ok) {
+          console.error("[CHILL] Failed to fetch session")
+          // Fallback to default music
+          setAudioUrl("/audio/ambient-1.mp3")
+          setIsLoading(false)
+          return
+        }
+
+        const data = await response.json()
+        if (data.success && data.data?.session) {
+          const { feeling, severity: sessionSeverity } = data.data.session
+          const musicUrl = getMusicUrl(feeling as Feeling, sessionSeverity)
+          setAudioUrl(musicUrl)
+          setSeverity(sessionSeverity)
+          console.log("[CHILL] Loaded music for:", { feeling, severity: sessionSeverity, musicUrl })
+        } else {
+          // Fallback to default music
+          setAudioUrl("/audio/ambient-1.mp3")
+        }
+      } catch (error) {
+        console.error("[CHILL] Error fetching session:", error)
+        // Fallback to default music
+        setAudioUrl("/audio/ambient-1.mp3")
+      } finally {
+        setIsLoading(false)
+      }
     }
+
+    fetchSession()
+  }, [])
+
+  // Auto-play music when audio URL is loaded
+  useEffect(() => {
+    if (!audioRef.current || !audioUrl || isLoading) return
+
+    // Set audio source
+    audioRef.current.src = audioUrl
+    audioRef.current.volume = 0.3 // Lower volume for background
+    audioRef.current.loop = true
+
+    // Auto-play when ready
+    const playAudio = async () => {
+      try {
+        await audioRef.current?.play()
+        console.log("[CHILL] Music started playing:", audioUrl)
+      } catch (error) {
+        console.log("[CHILL] Audio autoplay prevented:", error)
+      }
+    }
+
+    // Wait for audio to load
+    audioRef.current.addEventListener("loadeddata", playAudio)
+    
+    // Also try to play immediately if already loaded
+    if (audioRef.current.readyState >= 2) {
+      playAudio()
+    }
+
+    return () => {
+      audioRef.current?.removeEventListener("loadeddata", playAudio)
+    }
+  }, [audioUrl, isLoading])
+
+  useEffect(() => {
 
     // Setup canvas animation
     const canvas = canvasRef.current
@@ -241,26 +329,38 @@ export default function ChillPage() {
       </div>
 
       {/* Audio player */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 shadow-2xl">
-          <p className="text-xs text-white/60 mb-2 text-center">Ambient Experience</p>
-          <audio ref={audioRef} controls loop className="w-80">
-            <source src="/placeholder.mp3?query=ambient chill relaxation music" type="audio/mpeg" />
-          </audio>
+      {!isLoading && audioUrl && (
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 shadow-2xl">
+            <p className="text-xs text-white/60 mb-2 text-center">Ambient Experience</p>
+            <audio ref={audioRef} controls loop className="w-80">
+              <source src={audioUrl} type="audio/mpeg" />
+              Your browser does not support the audio element.
+            </audio>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Breathing guide circle (gentle pulsing) */}
+      {/* Breathing guide circle (gentle pulsing) - duration based on severity */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="relative">
-          <div
-            className="w-32 h-32 rounded-full border-2 border-emerald-300/20 animate-ping"
-            style={{ animationDuration: "4s" }}
-          />
-          <div
-            className="absolute inset-0 w-32 h-32 rounded-full border-2 border-emerald-300/30 animate-pulse"
-            style={{ animationDuration: "3s" }}
-          />
+          {/* Higher severity = slower breathing (longer duration) */}
+          {/* Severity 1-3: 3s, 4-6: 4s, 7-8: 5s, 9-10: 6s */}
+          {(() => {
+            const breathingDuration = severity <= 3 ? 3 : severity <= 6 ? 4 : severity <= 8 ? 5 : 6
+            return (
+              <>
+                <div
+                  className="w-32 h-32 rounded-full border-2 border-emerald-300/20 animate-ping"
+                  style={{ animationDuration: `${breathingDuration}s` }}
+                />
+                <div
+                  className="absolute inset-0 w-32 h-32 rounded-full border-2 border-emerald-300/30 animate-pulse"
+                  style={{ animationDuration: `${breathingDuration * 0.75}s` }}
+                />
+              </>
+            )
+          })()}
         </div>
       </div>
     </div>

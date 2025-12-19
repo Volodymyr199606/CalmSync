@@ -7,9 +7,18 @@ export async function sendMagicLinkEmail(to: string, url: string) {
     throw new Error("RESEND_API_KEY is not configured. Please set it in your environment variables.");
   }
 
+  const fromEmail = process.env.EMAIL_FROM || "onboarding@resend.dev";
+  
+  console.log("[EMAIL] Attempting to send magic link:", {
+    to,
+    from: fromEmail,
+    hasApiKey: !!process.env.RESEND_API_KEY,
+    apiKeyPrefix: process.env.RESEND_API_KEY?.substring(0, 5) + "...",
+  });
+
   try {
     const result = await resend.emails.send({
-      from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+      from: fromEmail,
       to,
       subject: "Sign in to CalmSync",
       html: `
@@ -70,13 +79,28 @@ export async function sendMagicLinkEmail(to: string, url: string) {
 
     // Check if the API returned an error
     if (result.error) {
-      console.error("Resend API error:", result.error);
-      throw new Error(
-        result.error.message || "Failed to send magic link email. Please check your Resend API configuration."
-      );
+      console.error("[EMAIL] Resend API error:", JSON.stringify(result.error, null, 2));
+      const errorMessage = result.error.message || "Failed to send magic link email. Please check your Resend API configuration.";
+      throw new Error(errorMessage);
+    }
+
+    // Log success
+    if (result.data) {
+      console.log("[EMAIL] Magic link email sent successfully:", {
+        emailId: result.data.id,
+        to,
+        from: fromEmail,
+      });
+    } else {
+      console.warn("[EMAIL] Resend API returned no error but also no data:", result);
     }
   } catch (error) {
-    console.error("Failed to send magic link email:", error);
+    console.error("[EMAIL] Failed to send magic link email:", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      to,
+      from: fromEmail,
+    });
     
     // Re-throw with more context if it's not already an Error
     if (error instanceof Error) {
