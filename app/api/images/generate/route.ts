@@ -16,7 +16,16 @@ export async function GET(request: NextRequest) {
   if (openaiApiKey) {
     try {
       const imageUrl = await generateImageWithOpenAI(prompt, width, height, openaiApiKey);
-      return NextResponse.json({ url: imageUrl, source: "openai" });
+      // Prevent caching to ensure fresh images each time
+      return NextResponse.json(
+        { url: imageUrl, source: "openai" },
+        {
+          headers: {
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+          },
+        }
+      );
     } catch (error) {
       console.error("OpenAI image generation failed:", error);
       // Fall through to Unsplash fallback
@@ -25,7 +34,17 @@ export async function GET(request: NextRequest) {
 
   // Fallback to Unsplash for nature images
   const unsplashUrl = await generateUnsplashImage(prompt, width, height);
-  return NextResponse.json({ url: unsplashUrl, source: "unsplash" });
+  
+  // Prevent caching to ensure fresh images each time
+  return NextResponse.json(
+    { url: unsplashUrl, source: "unsplash" },
+    {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+      },
+    }
+  );
 }
 
 /**
@@ -74,20 +93,84 @@ async function generateUnsplashImage(
   height: number
 ): Promise<string> {
   // Use Unsplash API with key if available (for truly random images)
-  const unsplashApiKey = process.env.UNSPLASH_ACCESS_KEY;
+  // Trim whitespace and remove quotes if present
+  const unsplashApiKey = process.env.UNSPLASH_ACCESS_KEY?.trim().replace(/^["']|["']$/g, '');
   
   if (unsplashApiKey) {
     try {
+      // Use generic nature-related queries for variety, randomly selected each time
+      const natureQueries = [
+        "nature landscape",
+        "peaceful nature",
+        "calming nature",
+        "serene landscape",
+        "tranquil nature",
+        "forest landscape",
+        "mountain landscape",
+        "ocean landscape",
+        "garden nature",
+        "sunset nature",
+        "peaceful scenery",
+        "meditation nature"
+      ];
+      
+      // Pick a random query to get variety each time
+      const randomQuery = natureQueries[Math.floor(Math.random() * natureQueries.length)];
+      
+      // Log for debugging (remove in production)
+      console.log("[Unsplash API] Making request with key length:", unsplashApiKey.length);
+      
       const response = await fetch(
         `https://api.unsplash.com/photos/random?query=${encodeURIComponent(
-          prompt
-        )}&orientation=landscape&client_id=${unsplashApiKey}`,
-        { method: "GET" }
+          randomQuery
+        )}&orientation=landscape`,
+        { 
+          method: "GET",
+          headers: {
+            "Accept-Version": "v1",
+            "Authorization": `Client-ID ${unsplashApiKey}`
+          }
+        }
       );
 
       if (response.ok) {
         const data = await response.json();
-        return data.urls.regular || data.urls.full;
+        // Use the regular size and add dimensions for proper sizing
+        const imageUrl = data.urls?.regular || data.urls?.full || data.urls?.small;
+        if (imageUrl) {
+          // Add dimensions to the URL if not already present
+          const urlObj = new URL(imageUrl);
+          urlObj.searchParams.set('w', width.toString());
+          urlObj.searchParams.set('h', height.toString());
+          urlObj.searchParams.set('fit', 'crop');
+          urlObj.searchParams.set('q', '85');
+          return urlObj.toString();
+        } else {
+          console.error("Unsplash API: No image URL in response", data);
+        }
+      } else {
+        let errorText = "";
+        try {
+          const errorData = await response.json();
+          errorText = JSON.stringify(errorData);
+          console.error("Unsplash API error response:", {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData,
+            hasApiKey: !!unsplashApiKey,
+            apiKeyLength: unsplashApiKey?.length || 0,
+            apiKeyPrefix: unsplashApiKey?.substring(0, 10) + "..."
+          });
+        } catch (e) {
+          errorText = await response.text();
+          console.error("Unsplash API error (text):", {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorText,
+            hasApiKey: !!unsplashApiKey,
+            apiKeyLength: unsplashApiKey?.length || 0
+          });
+        }
       }
     } catch (error) {
       console.error("Unsplash API error:", error);
@@ -107,13 +190,8 @@ async function generateUnsplashImage(
     "https://images.unsplash.com/photo-1469474968028-56645f4e32e6?w=1200&q=85&fit=crop", // Mountain landscape
   ];
 
-  // Select image based on prompt hash for consistency
-  let hash = 0;
-  for (let i = 0; i < prompt.length; i++) {
-    hash = ((hash << 5) - hash) + prompt.charCodeAt(i);
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-  const index = Math.abs(hash) % reliableNatureImages.length;
+  // Select image randomly (not based on hash) for variety each time
+  const index = Math.floor(Math.random() * reliableNatureImages.length);
   
   // Return the selected image URL with requested dimensions
   return reliableNatureImages[index].replace("w=1200", `w=${width}&h=${height}`);

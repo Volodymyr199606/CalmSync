@@ -8,10 +8,8 @@ export default auth((req) => {
     return Response.redirect(new URL("/", req.url));
   }
 
-  // Redirect authenticated users from landing page to dashboard
-  if (req.nextUrl.pathname === "/" && isLoggedIn) {
-    return Response.redirect(new URL("/dashboard", req.url));
-  }
+  // Allow authenticated users to access the home page if they want
+  // (removed auto-redirect to dashboard)
 
   return;
 });

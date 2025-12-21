@@ -11,8 +11,17 @@ export const authConfig: NextAuthConfig = {
         console.log("[AUTH] sendVerificationRequest called:", {
           identifier,
           urlLength: url.length,
+          urlPreview: url.substring(0, 80) + (url.length > 80 ? "..." : ""),
+          urlStartsWith: url.substring(0, 20),
           hasApiKey: !!process.env.RESEND_API_KEY,
+          hasUrl: !!url && url.trim() !== "",
         });
+        
+        if (!url || url.trim() === "") {
+          console.error("[AUTH] ERROR: URL is empty or undefined!");
+          throw new Error("Magic link URL is missing. Cannot send verification email.");
+        }
+        
         try {
           await sendMagicLinkEmail(identifier, url);
           console.log("[AUTH] Email sent successfully to:", identifier);

@@ -9,18 +9,43 @@ export async function sendMagicLinkEmail(to: string, url: string) {
 
   const fromEmail = process.env.EMAIL_FROM || "onboarding@resend.dev";
   
+  // Validate URL is present
+  if (!url || url.trim() === "") {
+    console.error("[EMAIL] ERROR: URL is empty or undefined!", { to, url });
+    throw new Error("Magic link URL is missing. Cannot send email.");
+  }
+
+  // Escape URL for HTML
+  const escapedUrl = url.replace(/"/g, "&quot;");
+  
   console.log("[EMAIL] Attempting to send magic link:", {
     to,
     from: fromEmail,
+    urlLength: url.length,
+    urlPreview: url.substring(0, 50) + "...",
     hasApiKey: !!process.env.RESEND_API_KEY,
     apiKeyPrefix: process.env.RESEND_API_KEY?.substring(0, 5) + "...",
   });
 
   try {
+    // Plain text version for email clients that don't support HTML
+    const textContent = `Sign in to CalmSync
+
+Click the link below to sign in to your account. This link will expire in 24 hours.
+
+${url}
+
+If you didn't request this email, you can safely ignore it.
+
+⚠️ Safety Notice: CalmSync is not a substitute for professional mental health care. If you're experiencing a crisis, please contact a mental health professional or emergency services.
+
+© ${new Date().getFullYear()} CalmSync. All rights reserved.`;
+
     const result = await resend.emails.send({
       from: fromEmail,
       to,
       subject: "Sign in to CalmSync",
+      text: textContent,
       html: `
         <!DOCTYPE html>
         <html>
@@ -42,17 +67,23 @@ export async function sendMagicLinkEmail(to: string, url: string) {
               </p>
               
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${url}" 
-                   style="background: #4F46E5; color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; font-size: 16px;">
+                <a href="${escapedUrl}" 
+                   style="background: #4F46E5; color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; font-size: 16px; margin: 10px 0;">
                   Sign In to CalmSync
                 </a>
               </div>
               
-              <p style="color: #6B7280; font-size: 14px; margin-top: 30px;">
+              <p style="color: #6B7280; font-size: 14px; margin-top: 30px; text-align: center;">
                 Or copy and paste this URL into your browser:
               </p>
-              <p style="color: #4F46E5; word-break: break-all; font-size: 14px; background: #F3F4F6; padding: 12px; border-radius: 4px;">
-                ${url}
+              <div style="text-align: center; margin: 15px 0;">
+                <a href="${escapedUrl}" 
+                   style="color: #4F46E5; word-break: break-all; font-size: 14px; background: #F3F4F6; padding: 12px; border-radius: 4px; display: inline-block; text-decoration: underline; max-width: 100%;">
+                  ${url}
+                </a>
+              </div>
+              <p style="color: #6B7280; font-size: 12px; text-align: center; margin-top: 10px;">
+                (Click the link above if the button doesn't work)
               </p>
               
               <hr style="border: none; border-top: 1px solid #E5E7EB; margin: 30px 0;">
@@ -81,19 +112,24 @@ export async function sendMagicLinkEmail(to: string, url: string) {
     if (result.error) {
       console.error("[EMAIL] Resend API error:", JSON.stringify(result.error, null, 2));
       const errorMessage = result.error.message || "Failed to send magic link email. Please check your Resend API configuration.";
-      throw new Error(errorMessage);
+      throw new Error(`Resend API Error: ${errorMessage}`);
     }
 
-    // Log success
-    if (result.data) {
-      console.log("[EMAIL] Magic link email sent successfully:", {
-        emailId: result.data.id,
-        to,
-        from: fromEmail,
-      });
-    } else {
-      console.warn("[EMAIL] Resend API returned no error but also no data:", result);
+    // Verify we got a successful response
+    if (!result.data || !result.data.id) {
+      console.error("[EMAIL] Resend API returned no data or email ID:", result);
+      throw new Error("Failed to send email: No response data from email service.");
     }
+
+    // Log success with full URL for debugging
+    console.log("[EMAIL] Magic link email sent successfully:", {
+      emailId: result.data.id,
+      to,
+      from: fromEmail,
+      urlLength: url.length,
+      fullUrl: url, // Log full URL for manual testing if email doesn't arrive
+    });
+    console.log("[EMAIL] 🔗 Magic Link URL (for manual testing):", url);
   } catch (error) {
     console.error("[EMAIL] Failed to send magic link email:", {
       error: error instanceof Error ? error.message : String(error),
