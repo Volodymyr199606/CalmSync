@@ -72,6 +72,7 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cypress": "^15.8.1",
     "postcss": "^8.5",
     "prisma": "6.2.1",
     "tailwindcss": "^4.1.9",
