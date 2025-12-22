@@ -36,7 +36,7 @@ export default function ChillPage() {
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [severity, setSeverity] = useState<number>(5) // Default to medium
-  const animationRef = useRef<number>()
+  const animationRef = useRef<number | undefined>(undefined)
 
   // Fetch latest session and determine music
   useEffect(() => {

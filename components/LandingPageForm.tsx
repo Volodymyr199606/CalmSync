@@ -106,7 +106,6 @@ export function LandingPageForm({ onSuccessChange }: LandingPageFormProps) {
       
       <Button 
         type="submit" 
-        variant="calm"
         size="lg"
         className="w-full bg-[#5C926A] hover:bg-[#4d7a5a] text-white"
         disabled={isPending}

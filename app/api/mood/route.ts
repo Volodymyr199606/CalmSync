@@ -24,7 +24,7 @@ export async function GET(request: Request) {
         userId: user.id,
       },
       include: {
-        relaxationSession: true,
+        relaxationSessions: true,
       },
       orderBy: {
         createdAt: "desc",
