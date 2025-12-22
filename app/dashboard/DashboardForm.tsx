@@ -144,16 +144,16 @@ export function DashboardForm() {
       <div 
         className="fixed inset-0 pointer-events-none z-[5]" 
         style={{
-          background: 'radial-gradient(ellipse 85% 85% at 50% 50%, transparent 0%, rgba(250, 249, 246, 0.1) 75%, rgba(250, 249, 246, 0.25) 100%)'
+          background: 'radial-gradient(ellipse 90% 90% at 50% 50%, transparent 0%, rgba(250, 249, 246, 0.05) 80%, rgba(250, 249, 246, 0.15) 100%)'
         }} 
       />
       
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         {!imagesLoading && backgroundImages.length >= 12 && (
           <>
-            {/* Left side animated panels - more visible and flowing, well-spaced */}
+            {/* Left side animated panels - well-spaced vertically to avoid overlap */}
             <motion.div
-              className="absolute left-0 top-10 w-60 h-96"
+              className="absolute left-0 top-8 w-56 h-80"
               initial={{ opacity: 0, x: -40, y: 0, rotate: -15 }}
               animate={{
                 opacity: [0.5, 0.7, 0.5],
@@ -183,7 +183,7 @@ export function DashboardForm() {
             </motion.div>
 
             <motion.div
-              className="absolute left-8 top-[500px] w-52 h-64"
+              className="absolute left-4 top-[420px] w-52 h-64"
               initial={{ opacity: 0, x: -30, y: 0, rotate: -12 }}
               animate={{
                 opacity: [0.55, 0.75, 0.55],
@@ -211,7 +211,7 @@ export function DashboardForm() {
             </motion.div>
 
             <motion.div
-              className="absolute left-4 bottom-20 w-48 h-64"
+              className="absolute left-2 bottom-16 w-48 h-56"
               initial={{ opacity: 0, x: -25, y: 0, rotate: -10 }}
               animate={{
                 opacity: [0.5, 0.7, 0.5],
@@ -238,9 +238,9 @@ export function DashboardForm() {
               />
             </motion.div>
 
-            {/* Right side animated panels - more visible and flowing, well-spaced */}
+            {/* Right side animated panels - well-spaced vertically to avoid overlap */}
             <motion.div
-              className="absolute right-0 top-20 w-72 h-80"
+              className="absolute right-0 top-16 w-64 h-72"
               initial={{ opacity: 0, x: 40, y: 0, rotate: 15 }}
               animate={{
                 opacity: [0.5, 0.7, 0.5],
@@ -270,7 +270,7 @@ export function DashboardForm() {
             </motion.div>
 
             <motion.div
-              className="absolute right-8 top-[480px] w-52 h-64"
+              className="absolute right-4 top-[400px] w-52 h-64"
               initial={{ opacity: 0, x: 30, y: 0, rotate: 18 }}
               animate={{
                 opacity: [0.55, 0.75, 0.55],
@@ -298,7 +298,7 @@ export function DashboardForm() {
             </motion.div>
 
             <motion.div
-              className="absolute right-4 bottom-24 w-48 h-64"
+              className="absolute right-2 bottom-20 w-48 h-56"
               initial={{ opacity: 0, x: 25, y: 0, rotate: 12 }}
               animate={{
                 opacity: [0.5, 0.7, 0.5],
@@ -325,9 +325,128 @@ export function DashboardForm() {
               />
             </motion.div>
 
-            {/* Floating nature cards (Pinterest style with ambient animations) - well-spaced */}
+            {/* Center floating images - positioned behind card, well-spaced to avoid overlap */}
+            {/* Top center - behind card header */}
             <motion.div
-              className="absolute left-24 bottom-24 w-40 h-40"
+              className="absolute left-[20%] top-[15%] w-40 h-40"
+              initial={{ opacity: 0, x: -10, y: 10, rotate: -2 }}
+              animate={{
+                opacity: [0.5, 0.7, 0.5],
+                x: [-10, 15, -8, 12, -10],
+                y: [10, -12, 8, -10, 10],
+                rotate: [-2, 3, -1, 2, -2],
+              }}
+              transition={{
+                duration: 28,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 8,
+              }}
+            >
+              <img
+                src={backgroundImages[6].url}
+                alt={backgroundImages[6].prompt}
+                className="w-full h-full object-cover rounded-xl shadow-md pointer-events-none"
+                style={{ filter: "contrast(1.3) saturate(1.4) brightness(1.05)" }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
+                  target.src = `https://source.unsplash.com/featured/512x512/?${encodeURIComponent(
+                    backgroundImages[6].prompt
+                  )}`
+                }}
+              />
+            </motion.div>
+
+            {/* Center left - behind card middle */}
+            <motion.div
+              className="absolute left-[25%] top-[45%] w-36 h-36"
+              initial={{ opacity: 0, x: -8, y: 12, rotate: -3 }}
+              animate={{
+                opacity: [0.5, 0.7, 0.5],
+                x: [-8, 12, -5, 10, -8],
+                y: [12, -8, 10, -6, 12],
+                rotate: [-3, 2, -1, 1, -3],
+              }}
+              transition={{
+                duration: 26,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 10,
+              }}
+            >
+              <img
+                src={backgroundImages[10].url}
+                alt={backgroundImages[10].prompt}
+                className="w-full h-full object-cover rounded-xl shadow-md pointer-events-none"
+                style={{ filter: "contrast(1.2) saturate(1.3) brightness(1.05)" }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
+                  target.src = "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=512&h=512&q=85&fit=crop"
+                }}
+              />
+            </motion.div>
+
+            {/* Center right - behind card middle */}
+            <motion.div
+              className="absolute right-[25%] top-[50%] w-40 h-36"
+              initial={{ opacity: 0, x: 10, y: -12, rotate: 4 }}
+              animate={{
+                opacity: [0.5, 0.7, 0.5],
+                x: [10, -12, 8, -10, 10],
+                y: [-12, 15, -10, 12, -12],
+                rotate: [4, -2, 3, -1, 4],
+              }}
+              transition={{
+                duration: 29,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 14,
+              }}
+            >
+              <img
+                src={backgroundImages[11].url}
+                alt={backgroundImages[11].prompt}
+                className="w-full h-full object-cover rounded-xl shadow-md pointer-events-none"
+                style={{ filter: "contrast(1.25) saturate(1.35) brightness(1.08)" }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
+                  target.src = "https://images.unsplash.com/photo-1469474968028-56645f4e32e6?w=512&h=512&q=85&fit=crop"
+                }}
+              />
+            </motion.div>
+
+            {/* Bottom center - behind card bottom */}
+            <motion.div
+              className="absolute right-[28%] bottom-[25%] w-44 h-32"
+              initial={{ opacity: 0, x: 12, y: -8, rotate: 2 }}
+              animate={{
+                opacity: [0.5, 0.7, 0.5],
+                x: [12, -10, 8, -6, 12],
+                y: [-8, 12, -10, 8, -8],
+                rotate: [2, -3, 1, -2, 2],
+              }}
+              transition={{
+                duration: 32,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 12,
+              }}
+            >
+              <img
+                src={backgroundImages[7].url}
+                alt={backgroundImages[7].prompt}
+                className="w-full h-full object-cover rounded-xl shadow-md pointer-events-none"
+                style={{ filter: "contrast(1.15) saturate(1.25)" }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
+                  target.src = "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=512&h=512&q=85&fit=crop"
+                }}
+              />
+            </motion.div>
+
+            {/* Additional floating images - positioned to avoid overlap */}
+            <motion.div
+              className="absolute left-20 bottom-32 w-40 h-40"
               initial={{ opacity: 0, x: -20, y: 20, rotate: -5 }}
               animate={{
                 opacity: [0.4, 0.65, 0.4],
@@ -357,7 +476,7 @@ export function DashboardForm() {
             </motion.div>
 
             <motion.div
-              className="absolute right-36 top-36 w-32 h-48"
+              className="absolute right-32 top-32 w-32 h-48"
               initial={{ opacity: 0, x: 15, y: -15, rotate: 3 }}
               animate={{
                 opacity: [0.35, 0.6, 0.35],
@@ -383,121 +502,6 @@ export function DashboardForm() {
                 }}
               />
             </motion.div>
-
-            <motion.div
-              className="absolute left-[30%] top-[35%] w-36 h-36"
-              initial={{ opacity: 0, x: -10, y: 10, rotate: -2 }}
-              animate={{
-                opacity: [0.45, 0.7, 0.45],
-                x: [-10, 15, -8, 12, -10],
-                y: [10, -12, 8, -10, 10],
-                rotate: [-2, 3, -1, 2, -2],
-              }}
-              transition={{
-                duration: 28,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 8,
-              }}
-            >
-              <img
-                src={backgroundImages[6].url}
-                alt={backgroundImages[6].prompt}
-                className="w-full h-full object-cover rounded-xl shadow-md pointer-events-none"
-                style={{ filter: "contrast(1.3) saturate(1.4) brightness(1.05)" }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.src = `https://source.unsplash.com/featured/512x512/?${encodeURIComponent(
-                    backgroundImages[6].prompt
-                  )}`
-                }}
-              />
-            </motion.div>
-
-            <motion.div
-              className="absolute right-[28%] bottom-[30%] w-44 h-32"
-              initial={{ opacity: 0, x: 12, y: -8, rotate: 2 }}
-              animate={{
-                opacity: [0.35, 0.6, 0.35],
-                x: [12, -10, 8, -6, 12],
-                y: [-8, 12, -10, 8, -8],
-                rotate: [2, -3, 1, -2, 2],
-              }}
-              transition={{
-                duration: 32,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 12,
-              }}
-            >
-              <img
-                src={backgroundImages[7].url}
-                alt={backgroundImages[7].prompt}
-                className="w-full h-full object-cover rounded-xl shadow-md pointer-events-none"
-                style={{ filter: "contrast(1.15) saturate(1.25)" }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.src = "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=512&h=512&q=85&fit=crop"
-                }}
-              />
-            </motion.div>
-
-            {/* Additional floating images - well-spaced */}
-            <motion.div
-              className="absolute left-[38%] top-[28%] w-36 h-36"
-              initial={{ opacity: 0, x: -8, y: 12, rotate: -3 }}
-              animate={{
-                opacity: [0.4, 0.65, 0.4],
-                x: [-8, 12, -5, 10, -8],
-                y: [12, -8, 10, -6, 12],
-                rotate: [-3, 2, -1, 1, -3],
-              }}
-              transition={{
-                duration: 26,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 10,
-              }}
-            >
-              <img
-                src={backgroundImages[10].url}
-                alt={backgroundImages[10].prompt}
-                className="w-full h-full object-cover rounded-xl shadow-md pointer-events-none"
-                style={{ filter: "contrast(1.2) saturate(1.3) brightness(1.05)" }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.src = "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=512&h=512&q=85&fit=crop"
-                }}
-              />
-            </motion.div>
-
-            <motion.div
-              className="absolute right-[35%] top-[65%] w-40 h-36"
-              initial={{ opacity: 0, x: 10, y: -12, rotate: 4 }}
-              animate={{
-                opacity: [0.35, 0.6, 0.35],
-                x: [10, -12, 8, -10, 10],
-                y: [-12, 15, -10, 12, -12],
-                rotate: [4, -2, 3, -1, 4],
-              }}
-              transition={{
-                duration: 29,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 14,
-              }}
-            >
-              <img
-                src={backgroundImages[11].url}
-                alt={backgroundImages[11].prompt}
-                className="w-full h-full object-cover rounded-xl shadow-md pointer-events-none"
-                style={{ filter: "contrast(1.25) saturate(1.35) brightness(1.08)" }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.src = "https://images.unsplash.com/photo-1469474968028-56645f4e32e6?w=512&h=512&q=85&fit=crop"
-                }}
-              />
-            </motion.div>
           </>
         )}
       </div>
@@ -510,8 +514,8 @@ export function DashboardForm() {
             <p className="text-gray-500">Take a moment to check in with yourself</p>
           </div>
 
-          {/* Content card with enhanced visual hierarchy */}
-          <form onSubmit={handleSubmit} className="bg-white/95 backdrop-blur-md rounded-2xl border border-gray-200/80 shadow-2xl p-8 space-y-8 ring-1 ring-black/5">
+          {/* Content card with enhanced visual hierarchy - semi-transparent to show background images */}
+          <form onSubmit={handleSubmit} className="bg-white/85 backdrop-blur-sm rounded-2xl border border-gray-200/80 shadow-2xl p-8 space-y-8 ring-1 ring-black/5">
             {/* Feeling selection */}
             <div className="space-y-4">
               <label className="text-sm font-medium text-gray-700">How are you feeling?</label>
