@@ -1,6 +1,18 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization to avoid build-time errors when env vars are missing
+let resendInstance: Resend | null = null;
+
+function getResend(): Resend {
+  if (!resendInstance) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error("RESEND_API_KEY is not configured. Please set it in your environment variables.");
+    }
+    resendInstance = new Resend(apiKey);
+  }
+  return resendInstance;
+}
 
 export async function sendMagicLinkEmail(to: string, url: string) {
   if (!process.env.RESEND_API_KEY) {
@@ -41,6 +53,7 @@ If you didn't request this email, you can safely ignore it.
 
 © ${new Date().getFullYear()} CalmSync. All rights reserved.`;
 
+    const resend = getResend();
     const result = await resend.emails.send({
       from: fromEmail,
       to,

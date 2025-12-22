@@ -58,6 +58,7 @@
     "cypress.config.*",
     "**/cypress.config.*",
     "vitest.config.ts",
-    "vitest.config.*"
+    "vitest.config.*",
+    "tests"
   ]
 }
