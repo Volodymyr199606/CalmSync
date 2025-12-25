@@ -86,10 +86,38 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     const requestData = validation.data;
 
     // 3. Find user in database
-    const user = await prisma.user.findUnique({
-      where: { email: currentUser.email },
-      select: { id: true, email: true },
-    });
+    let user;
+    try {
+      user = await prisma.user.findUnique({
+        where: { email: currentUser.email },
+        select: { id: true, email: true },
+      });
+    } catch (dbError) {
+      // Check if it's a database connection error
+      const isConnectionError = dbError instanceof Error && 
+        (dbError.message.includes("Can't reach database server") ||
+         dbError.message.includes("P1001") ||
+         dbError.message.includes("connection"));
+      
+      if (isConnectionError) {
+        logger.error('Database connection error', {
+          email: currentUser.email,
+          error: dbError instanceof Error ? dbError.message : String(dbError),
+        });
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Database connection error. Please check your database configuration.',
+            details: process.env.NODE_ENV === 'development' 
+              ? (dbError instanceof Error ? dbError.message : String(dbError))
+              : undefined,
+          },
+          { status: 503 }
+        );
+      }
+      // Re-throw other database errors
+      throw dbError;
+    }
 
     if (!user) {
       logger.error('Authenticated user not found in database', {

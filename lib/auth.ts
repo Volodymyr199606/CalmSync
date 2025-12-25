@@ -29,7 +29,17 @@ export async function getCurrentUser() {
         image: prismaUser.image,
       };
     } catch (syncError) {
-      console.error("[AUTH] Error syncing user to Prisma:", syncError);
+      // Check if it's a database connection error
+      const isConnectionError = syncError instanceof Error && 
+        (syncError.message.includes("Can't reach database server") ||
+         syncError.message.includes("P1001") ||
+         syncError.message.includes("connection"));
+      
+      if (isConnectionError) {
+        console.error("[AUTH] Database connection error - returning Supabase user data as fallback:", syncError.message);
+      } else {
+        console.error("[AUTH] Error syncing user to Prisma:", syncError);
+      }
       // If sync fails, still return basic user info from Supabase
       return {
         id: supabaseUser.id,
