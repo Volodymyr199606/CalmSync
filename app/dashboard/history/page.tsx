@@ -115,15 +115,15 @@ export default async function HistoryPage() {
 
     const userId = user.id
 
-  // Date ranges
-  const now = new Date()
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-  const startOfWeek = new Date(now)
-  startOfWeek.setDate(now.getDate() - now.getDay())
-  startOfWeek.setHours(0, 0, 0, 0)
+    // Date ranges
+    const now = new Date()
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const startOfWeek = new Date(now)
+    startOfWeek.setDate(now.getDate() - now.getDay())
+    startOfWeek.setHours(0, 0, 0, 0)
 
-  // 1. Total Sessions This Month
-  const totalSessionsThisMonth = await prisma.relaxationSession.count({
+    // 1. Total Sessions This Month
+    const totalSessionsThisMonth = await prisma.relaxationSession.count({
     where: {
       userId,
       startedAt: {
@@ -132,9 +132,9 @@ export default async function HistoryPage() {
     },
   })
 
-  // 2. Average Calm Level (average of (10 - severity) for all check-ins this month)
-  // Lower severity = calmer, so we invert it: calm level = 10 - severity
-  const checkInsThisMonth = await prisma.moodCheckIn.findMany({
+    // 2. Average Calm Level (average of (10 - severity) for all check-ins this month)
+    // Lower severity = calmer, so we invert it: calm level = 10 - severity
+    const checkInsThisMonth = await prisma.moodCheckIn.findMany({
     where: {
       userId,
       createdAt: {
@@ -144,13 +144,13 @@ export default async function HistoryPage() {
     select: { severity: true },
   })
 
-  const avgCalmLevel =
-    checkInsThisMonth.length > 0
-      ? checkInsThisMonth.reduce((sum, ci) => sum + (10 - ci.severity), 0) / checkInsThisMonth.length
-      : 0
+    const avgCalmLevel =
+      checkInsThisMonth.length > 0
+        ? checkInsThisMonth.reduce((sum, ci) => sum + (10 - ci.severity), 0) / checkInsThisMonth.length
+        : 0
 
-  // 3. Meditation Time This Week (sum of durationMinutes)
-  const sessionsThisWeek = await prisma.relaxationSession.findMany({
+    // 3. Meditation Time This Week (sum of durationMinutes)
+    const sessionsThisWeek = await prisma.relaxationSession.findMany({
     where: {
       userId,
       startedAt: {
@@ -160,14 +160,14 @@ export default async function HistoryPage() {
     select: { durationMinutes: true },
   })
 
-  const totalMeditationMinutes = sessionsThisWeek.reduce((sum, s) => sum + s.durationMinutes, 0)
-  const meditationHours = totalMeditationMinutes / 60
+    const totalMeditationMinutes = sessionsThisWeek.reduce((sum, s) => sum + s.durationMinutes, 0)
+    const meditationHours = totalMeditationMinutes / 60
 
-  // 4. Current Streak
-  const currentStreak = await calculateStreak(userId)
+    // 4. Current Streak
+    const currentStreak = await calculateStreak(userId)
 
-  // 5. Mood Distribution This Week
-  const checkInsThisWeek = await prisma.moodCheckIn.findMany({
+    // 5. Mood Distribution This Week
+    const checkInsThisWeek = await prisma.moodCheckIn.findMany({
     where: {
       userId,
       createdAt: {
@@ -177,30 +177,30 @@ export default async function HistoryPage() {
     select: { feeling: true },
   })
 
-  const moodCounts: Record<FeelingType, number> = {
-    STRESS: 0,
-    ANXIETY: 0,
-    DEPRESSION: 0,
-    FRUSTRATION: 0,
-  }
+    const moodCounts: Record<FeelingType, number> = {
+      STRESS: 0,
+      ANXIETY: 0,
+      DEPRESSION: 0,
+      FRUSTRATION: 0,
+    }
 
-  checkInsThisWeek.forEach((ci) => {
-    moodCounts[ci.feeling]++
-  })
+    checkInsThisWeek.forEach((ci) => {
+      moodCounts[ci.feeling]++
+    })
 
-  const totalMoods = checkInsThisWeek.length
-  const moodDistribution = Object.entries(moodCounts)
-    .filter(([_, count]) => count > 0)
-    .map(([feeling, count]) => ({
-      mood: feelingDisplayNames[feeling as FeelingType],
-      percentage: totalMoods > 0 ? Math.round((count / totalMoods) * 100) : 0,
-      color: feelingColors[feeling as FeelingType],
-      feeling: feeling as FeelingType,
-    }))
-    .sort((a, b) => b.percentage - a.percentage)
+    const totalMoods = checkInsThisWeek.length
+    const moodDistribution = Object.entries(moodCounts)
+      .filter(([_, count]) => count > 0)
+      .map(([feeling, count]) => ({
+        mood: feelingDisplayNames[feeling as FeelingType],
+        percentage: totalMoods > 0 ? Math.round((count / totalMoods) * 100) : 0,
+        color: feelingColors[feeling as FeelingType],
+        feeling: feeling as FeelingType,
+      }))
+      .sort((a, b) => b.percentage - a.percentage)
 
-  // 6. History Entries (grouped by date)
-  const allCheckIns = await prisma.moodCheckIn.findMany({
+    // 6. History Entries (grouped by date)
+    const allCheckIns = await prisma.moodCheckIn.findMany({
     where: { userId },
     include: {
       relaxationSessions: {
@@ -216,17 +216,17 @@ export default async function HistoryPage() {
     take: 50,
   })
 
-  // Group entries by date
-  const groupedEntries = new Map<string, typeof allCheckIns>()
-  allCheckIns.forEach((checkIn) => {
-    const dateKey = formatDateForGrouping(checkIn.createdAt)
-    if (!groupedEntries.has(dateKey)) {
-      groupedEntries.set(dateKey, [])
-    }
-    groupedEntries.get(dateKey)!.push(checkIn)
-  })
+    // Group entries by date
+    const groupedEntries = new Map<string, typeof allCheckIns>()
+    allCheckIns.forEach((checkIn) => {
+      const dateKey = formatDateForGrouping(checkIn.createdAt)
+      if (!groupedEntries.has(dateKey)) {
+        groupedEntries.set(dateKey, [])
+      }
+      groupedEntries.get(dateKey)!.push(checkIn)
+    })
 
-  const historyEntries = Array.from(groupedEntries.entries())
+    const historyEntries = Array.from(groupedEntries.entries())
     .map(([date, entries]) => ({
       date,
       entries: entries.map((entry) => {
@@ -260,16 +260,16 @@ export default async function HistoryPage() {
         }
       }),
     }))
-    .sort((a, b) => {
-      // Sort by date, with "Today" first, "Yesterday" second, then chronologically
-      if (a.date === "Today") return -1
-      if (b.date === "Today") return 1
-      if (a.date === "Yesterday") return -1
-      if (b.date === "Yesterday") return 1
-      return new Date(b.date).getTime() - new Date(a.date).getTime()
-    })
+      .sort((a, b) => {
+        // Sort by date, with "Today" first, "Yesterday" second, then chronologically
+        if (a.date === "Today") return -1
+        if (b.date === "Today") return 1
+        if (a.date === "Yesterday") return -1
+        if (b.date === "Yesterday") return 1
+        return new Date(b.date).getTime() - new Date(a.date).getTime()
+      })
 
-    // 7. Render client component with real data
+    // 7. Render client component with real data (even if empty)
     return (
       <HistoryClient
         stats={{
@@ -285,7 +285,25 @@ export default async function HistoryPage() {
     )
   } catch (error) {
     console.error("[HISTORY PAGE] Error loading history:", error)
-    // Redirect to dashboard on error
-    redirect("/dashboard")
+    // Only redirect on actual errors, not empty states
+    // If it's a database connection issue or auth issue, redirect
+    // Otherwise, show the page with empty data
+    if (error instanceof Error && error.message.includes("auth")) {
+      redirect("/")
+    }
+    // For other errors, show empty state instead of redirecting
+    return (
+      <HistoryClient
+        stats={{
+          totalSessions: 0,
+          avgCalmLevel: 0,
+          meditationHours: 0,
+          currentStreak: 0,
+        }}
+        moodDistribution={[]}
+        historyEntries={[]}
+        totalEntries={0}
+      />
+    )
   }
 }
