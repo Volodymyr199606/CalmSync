@@ -23,6 +23,7 @@ const experienceRequestSchema = z.union([
   z.object({
     feeling: FeelingSchema,
     severity: z.number().int().min(1).max(10),
+    notes: z.string().optional(), // Allow notes but don't require them
   }),
 ]);
 
@@ -237,7 +238,15 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     // IMPORTANT: Use URL from contentItem (content library) not dbItem (database)
     // This ensures we always use the latest URLs even if database has old ones
     const sessionItemsData: SessionItem[] = createdSessionItems.map(sessionItem => {
-      const { dbItem, contentItem } = contentItemsMap.get(sessionItem.orderIndex)!;
+      const mapEntry = contentItemsMap.get(sessionItem.orderIndex);
+      if (!mapEntry) {
+        logger.error('Missing content item mapping', {
+          orderIndex: sessionItem.orderIndex,
+          sessionId: relaxationSession.id,
+        });
+        throw new Error(`Missing content item mapping for orderIndex ${sessionItem.orderIndex}`);
+      }
+      const { dbItem, contentItem } = mapEntry;
       return {
         id: sessionItem.id,
         sessionId: relaxationSession.id,

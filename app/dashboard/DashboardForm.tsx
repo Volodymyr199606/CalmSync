@@ -48,7 +48,7 @@ export function DashboardForm() {
         body: JSON.stringify({
           feeling: feeling.toUpperCase(),
           severity: intensity,
-          notes: notes || undefined,
+          // Notes are not saved via experience API - would need mood check-in first
         }),
       })
 
