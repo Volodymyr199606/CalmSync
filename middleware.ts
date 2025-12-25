@@ -33,17 +33,14 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const isOnDashboard = request.nextUrl.pathname.startsWith("/dashboard");
-  const isOnRoot = request.nextUrl.pathname === "/";
 
   // Redirect unauthenticated users away from protected routes
   if (isOnDashboard && !user) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // Redirect authenticated users from root to dashboard
-  if (isOnRoot && user) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
+  // Allow access to home page for both authenticated and unauthenticated users
+  // Authenticated users can still access / to log out or see the landing page
 
   return supabaseResponse
 }
