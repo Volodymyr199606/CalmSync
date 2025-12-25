@@ -21,6 +21,7 @@ export function DashboardForm() {
   const [imagesLoading, setImagesLoading] = useState(true)
   const [isMounted, setIsMounted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const feelings = [
     { id: "stress", emoji: "😰", label: "Stress" },
@@ -35,9 +36,10 @@ export function DashboardForm() {
     if (!feeling) return
 
     setIsSubmitting(true)
+    setError(null)
 
     try {
-      // Submit to API to create experience FIRST
+      // Create experience directly (API accepts feeling + severity)
       const response = await fetch("/api/experience", {
         method: "POST",
         headers: {
@@ -50,25 +52,22 @@ export function DashboardForm() {
         }),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error("Failed to create experience")
+        throw new Error(data.error || "Failed to create experience")
       }
 
-      const data = await response.json()
-      
       // Redirect to chill page after successful experience creation
       if (data.success && data.data?.session) {
-        // Redirect to chill page - it will fetch the latest session
         router.push("/chill")
-        return // Exit early to prevent any further execution
+        return // Exit early - redirect will happen, don't reset loading state
       } else {
-        console.error("Experience creation response missing session data:", data)
-        alert("Failed to create experience. Please try again.")
+        throw new Error("Experience creation failed - invalid response")
       }
     } catch (error) {
       console.error("Error creating experience:", error)
-      alert("Failed to create experience. Please try again.")
-    } finally {
+      setError(error instanceof Error ? error.message : "Failed to create experience. Please try again.")
       setIsSubmitting(false)
     }
   }
@@ -587,6 +586,13 @@ export function DashboardForm() {
                 />
               </div>
             </div>
+
+            {/* Error message */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
 
             {/* Submit */}
             <Button
