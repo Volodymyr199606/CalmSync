@@ -91,5 +91,9 @@ export default async function SettingsPage() {
       </Card>
     </div>
   );
+  } catch (error) {
+    console.error("[SETTINGS PAGE] Error loading settings:", error);
+    redirect("/dashboard");
+  }
 }
 
