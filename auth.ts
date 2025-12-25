@@ -7,10 +7,11 @@ import { prisma } from "@/lib/prisma";
 const authSecret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
 
 if (!authSecret) {
-  console.error("[AUTH] Missing AUTH_SECRET or NEXTAUTH_SECRET environment variable");
-  console.error("[AUTH] This is required for NextAuth. Please set it in your environment variables.");
-  console.error("[AUTH] You can generate one with: openssl rand -base64 32");
-  throw new Error("AUTH_SECRET or NEXTAUTH_SECRET must be set");
+  console.warn("[AUTH] Missing AUTH_SECRET or NEXTAUTH_SECRET environment variable");
+  console.warn("[AUTH] This is required for NextAuth. Please set it in your environment variables.");
+  console.warn("[AUTH] You can generate one with: openssl rand -base64 32");
+  // Don't throw here - let NextAuth handle the missing secret with its own validation
+  // This allows the build to complete and shows a proper error at runtime
 }
 
 // Since we're using JWT sessions, we don't strictly need PrismaAdapter
