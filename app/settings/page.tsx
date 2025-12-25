@@ -10,11 +10,12 @@ import { DeleteAccountButton } from '@/components/settings/DeleteAccountButton';
  * Requires authentication
  */
 export default async function SettingsPage() {
-  const user = await getCurrentUser();
+  try {
+    const user = await getCurrentUser();
 
-  if (!user) {
-    redirect('/');
-  }
+    if (!user) {
+      redirect('/');
+    }
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">

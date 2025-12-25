@@ -95,24 +95,25 @@ async function calculateStreak(userId: string): Promise<number> {
 }
 
 export default async function HistoryPage() {
-  // 1. Authenticate user
-  const currentUser = await getCurrentUser()
+  try {
+    // 1. Authenticate user
+    const currentUser = await getCurrentUser()
 
-  if (!currentUser?.email) {
-    redirect("/")
-  }
+    if (!currentUser?.email) {
+      redirect("/")
+    }
 
-  // 2. Load user from database
-  const user = await prisma.user.findUnique({
-    where: { email: currentUser.email },
-    select: { id: true },
-  })
+    // 2. Load user from database
+    const user = await prisma.user.findUnique({
+      where: { email: currentUser.email },
+      select: { id: true },
+    })
 
-  if (!user) {
-    redirect("/")
-  }
+    if (!user) {
+      redirect("/")
+    }
 
-  const userId = user.id
+    const userId = user.id
 
   // Date ranges
   const now = new Date()
@@ -268,18 +269,23 @@ export default async function HistoryPage() {
       return new Date(b.date).getTime() - new Date(a.date).getTime()
     })
 
-  // 7. Render client component with real data
-  return (
-    <HistoryClient
-      stats={{
-        totalSessions: totalSessionsThisMonth,
-        avgCalmLevel: Math.round(avgCalmLevel * 10) / 10,
-        meditationHours: Math.round(meditationHours * 10) / 10,
-        currentStreak,
-      }}
-      moodDistribution={moodDistribution}
-      historyEntries={historyEntries}
-      totalEntries={checkInsThisWeek.length}
-    />
-  )
+    // 7. Render client component with real data
+    return (
+      <HistoryClient
+        stats={{
+          totalSessions: totalSessionsThisMonth,
+          avgCalmLevel: Math.round(avgCalmLevel * 10) / 10,
+          meditationHours: Math.round(meditationHours * 10) / 10,
+          currentStreak,
+        }}
+        moodDistribution={moodDistribution}
+        historyEntries={historyEntries}
+        totalEntries={checkInsThisWeek.length}
+      />
+    )
+  } catch (error) {
+    console.error("[HISTORY PAGE] Error loading history:", error)
+    // Redirect to dashboard on error
+    redirect("/dashboard")
+  }
 }
