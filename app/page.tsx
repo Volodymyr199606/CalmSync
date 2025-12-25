@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { submitEmail } from "@/app/actions/auth"
@@ -15,9 +16,9 @@ interface Particle {
 }
 
 export default function LandingPage() {
+  const router = useRouter()
   const [email, setEmail] = useState("")
   const [isPending, setIsPending] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [particles, setParticles] = useState<Particle[]>([])
 
@@ -66,12 +67,12 @@ export default function LandingPage() {
         setError(result.error)
         setIsPending(false)
       } else if (result?.success) {
-        setIsSuccess(true)
-        setIsPending(false)
+        // Redirect to verification page after successful email submission
+        router.push("/verify-request")
       }
     } catch (err) {
-      // If signIn redirects, it throws - treat as success
-      setIsSuccess(true)
+      console.error("Error submitting email:", err)
+      setError("Failed to send magic link. Please try again.")
       setIsPending(false)
     }
   }
@@ -158,38 +159,8 @@ export default function LandingPage() {
             <p className="text-gray-500 text-base">Your personal relaxation companion</p>
           </div>
 
-          {/* Success state */}
-          {isSuccess ? (
-            <div className="space-y-4 text-center animate-fade-in">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#4A9B7F]/10 mb-4">
-                <svg
-                  className="w-6 h-6 text-[#4A9B7F]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Check your email
-              </h2>
-              <p className="text-sm text-gray-500">
-                We've sent a magic link to <strong>{email}</strong>
-              </p>
-              <p className="text-sm text-gray-500">
-                Click the link in the email to sign in.
-              </p>
-            </div>
-          ) : (
-            <>
-              {/* Email form */}
-              <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Email form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <label htmlFor="email" className="text-sm font-medium text-gray-700 block">
                     Email
@@ -265,8 +236,6 @@ export default function LandingPage() {
               <div className="text-center pt-4 border-t border-gray-200/50">
                 <p className="text-xs text-gray-400">Join 1,000+ users finding their calm</p>
               </div>
-            </>
-          )}
         </div>
       </div>
     </div>

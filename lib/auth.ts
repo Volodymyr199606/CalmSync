@@ -6,25 +6,42 @@ import { syncSupabaseUserToPrisma } from "@/lib/supabase/user-sync";
  * @returns The current user or null if not authenticated
  */
 export async function getCurrentUser() {
-  const supabase = await createClient();
-  const {
-    data: { user: supabaseUser },
-  } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user: supabaseUser },
+      error: getUserError,
+    } = await supabase.auth.getUser();
 
-  if (!supabaseUser) {
+    if (getUserError || !supabaseUser) {
+      return null;
+    }
+
+    // Sync Supabase user to Prisma
+    try {
+      const prismaUser = await syncSupabaseUserToPrisma(supabaseUser);
+
+      // Return user in a format compatible with existing code
+      return {
+        id: prismaUser.id,
+        email: prismaUser.email,
+        name: prismaUser.name,
+        image: prismaUser.image,
+      };
+    } catch (syncError) {
+      console.error("[AUTH] Error syncing user to Prisma:", syncError);
+      // If sync fails, still return basic user info from Supabase
+      return {
+        id: supabaseUser.id,
+        email: supabaseUser.email || "",
+        name: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || null,
+        image: supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture || null,
+      };
+    }
+  } catch (error) {
+    console.error("[AUTH] Error in getCurrentUser:", error);
     return null;
   }
-
-  // Sync Supabase user to Prisma
-  const prismaUser = await syncSupabaseUserToPrisma(supabaseUser);
-
-  // Return user in a format compatible with existing code
-  return {
-    id: prismaUser.id,
-    email: prismaUser.email,
-    name: prismaUser.name,
-    image: prismaUser.image,
-  };
 }
 
 /**
