@@ -67,8 +67,8 @@ export default function LandingPage() {
         setError(result.error)
         setIsPending(false)
       } else if (result?.success) {
-        // Redirect to verification page after successful email submission
-        router.push("/verify-request")
+        // Redirect to verification page after successful email submission with email parameter
+        router.push(`/verify-request?email=${encodeURIComponent(email)}`)
       }
     } catch (err) {
       console.error("Error submitting email:", err)

@@ -1,151 +1,147 @@
-import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+"use client"
 
-export default function VerifyRequestPage() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 py-16">
-      <Card className="w-full max-w-md mx-auto p-8 rounded-xl shadow-lg">
-        <CardHeader className="space-y-3 pb-6">
-          <CardTitle className="text-2xl sm:text-3xl font-bold text-gray-900 text-center">
-            Check your email
-          </CardTitle>
-          <p className="text-sm text-gray-600 text-center leading-relaxed">
-            We&apos;ve sent you a magic link. Click it in your email to sign in securely.
-          </p>
-        </CardHeader>
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 
-        <CardContent className="space-y-6">
-          {/* Steps Section */}
-          <div className="space-y-4">
-            {/* Step 1: Magic link sent */}
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 mt-0.5">
-                <svg
-                  className="h-3.5 w-3.5 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-medium text-gray-900 mb-1">
-                  We&apos;ve sent you a magic link
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Click the link in your email to sign in securely
-                </p>
-              </div>
-            </div>
-
-            {/* Step 2: What to do next */}
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 mt-0.5">
-                <svg
-                  className="h-3.5 w-3.5 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-medium text-gray-900 mb-1">
-                  What to do next
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Click the link in the email to sign in. The link will expire in 24 hours for security.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Didn't receive it section */}
-          <div className="pt-4 border-t border-gray-200">
-            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-              Didn&apos;t receive it?
-            </h4>
-            <ul className="space-y-2">
-              <li className="flex items-start gap-2 text-xs text-gray-500">
-                <svg
-                  className="h-2.5 w-2.5 text-gray-400 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <span>Check spam/junk folder</span>
-              </li>
-              <li className="flex items-start gap-2 text-xs text-gray-500">
-                <svg
-                  className="h-2.5 w-2.5 text-gray-400 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <span>Wait a minute and try again</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Back Button */}
-          <div className="pt-4">
-            <Link href="/" className="block">
-              <Button
-                variant="outline"
-                className="w-full text-sm font-medium"
-              >
-                <svg
-                  className="h-4 w-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                  />
-                </svg>
-                Back to sign in
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+interface Particle {
+  id: string
+  top: string
+  left: string
+  delay: string
+  duration: string
 }
 
+export default function VerifyRequestPage() {
+  const searchParams = useSearchParams()
+  const email = searchParams.get("email") || ""
+  const [particles, setParticles] = useState<Particle[]>([])
+
+  // Generate particles on client side only to avoid hydration mismatch
+  useEffect(() => {
+    const timestamp = Date.now()
+    const generatedParticles = Array.from({ length: 75 }).map((_, index) => ({
+      id: `particle-${timestamp}-${index}`,
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      delay: `${Math.random() * 5}s`,
+      duration: `${15 + Math.random() * 10}s`,
+    }))
+    setParticles(generatedParticles)
+  }, [])
+
+  return (
+    <div className="relative min-h-screen bg-[#FAF9F6] overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Gradient wave layers - slow moving */}
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-gradient-to-br from-[#4A9B7F]/15 via-[#4A9B7F]/5 to-transparent rounded-full blur-3xl animate-wave-1" />
+        <div className="absolute top-1/3 -right-20 w-[500px] h-[500px] bg-gradient-to-tl from-[#6BB89F]/10 via-transparent to-transparent rounded-full blur-3xl animate-wave-2" />
+        <div className="absolute -bottom-40 left-1/3 w-[600px] h-[600px] bg-gradient-to-tr from-[#4A9B7F]/8 to-transparent rounded-full blur-3xl animate-wave-3" />
+
+        {/* Additional gradient waves for richer atmosphere */}
+        <div
+          className="absolute top-1/4 left-1/4 w-[450px] h-[450px] bg-gradient-to-br from-[#5BAA8A]/12 via-transparent to-[#4A9B7F]/5 rounded-full blur-3xl animate-wave-1"
+          style={{ animationDuration: "40s" }}
+        />
+        <div
+          className="absolute bottom-1/4 right-1/3 w-[550px] h-[550px] bg-gradient-to-tl from-[#4A9B7F]/10 via-[#6BB89F]/6 to-transparent rounded-full blur-3xl animate-wave-2"
+          style={{ animationDuration: "45s", animationDelay: "5s" }}
+        />
+        <div
+          className="absolute top-2/3 left-1/2 w-[400px] h-[400px] bg-gradient-to-tr from-transparent via-[#5BAA8A]/8 to-[#4A9B7F]/6 rounded-full blur-3xl animate-wave-3"
+          style={{ animationDuration: "50s", animationDelay: "10s" }}
+        />
+        <div
+          className="absolute top-10 left-2/3 w-[480px] h-[480px] bg-gradient-to-bl from-[#6BB89F]/9 to-transparent rounded-full blur-3xl animate-wave-1"
+          style={{ animationDuration: "55s", animationDelay: "8s" }}
+        />
+        <div
+          className="absolute bottom-10 left-10 w-[520px] h-[520px] bg-gradient-to-br from-[#4A9B7F]/11 via-[#5BAA8A]/7 to-transparent rounded-full blur-3xl animate-wave-2"
+          style={{ animationDuration: "48s", animationDelay: "3s" }}
+        />
+
+        {/* Bokeh effect circles */}
+        <div className="absolute top-20 right-1/4 w-32 h-32 bg-[#4A9B7F]/5 rounded-full blur-2xl animate-float-slow" />
+        <div className="absolute bottom-40 left-1/4 w-40 h-40 bg-[#6BB89F]/5 rounded-full blur-2xl animate-float-medium" />
+        <div className="absolute top-1/2 right-1/3 w-24 h-24 bg-[#4A9B7F]/8 rounded-full blur-xl animate-float-fast" />
+
+        {/* Floating particles - more prominent */}
+        {particles.map((particle) => (
+          <div
+            key={particle.id}
+            className="absolute w-1 h-1 bg-[#4A9B7F]/30 rounded-full animate-float-slow pointer-events-none"
+            style={{
+              top: particle.top,
+              left: particle.left,
+              animationDelay: particle.delay,
+              animationDuration: particle.duration,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Main content */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-12">
+        <div className="w-full max-w-md space-y-12 animate-fade-in">
+          {/* Logo with enhanced animation */}
+          <div className="flex justify-center">
+            <div className="relative">
+              {/* Outer glow ring */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-24 h-24 rounded-full bg-[#4A9B7F]/10 animate-pulse-glow" />
+              </div>
+              {/* Middle ring */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-20 h-20 rounded-full border-2 border-[#4A9B7F]/20 animate-breathe" />
+              </div>
+              {/* Inner ring */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full border-2 border-[#4A9B7F]/30 animate-breathe delay-500" />
+              </div>
+              {/* Core dot with ping */}
+              <div className="relative flex items-center justify-center w-24 h-24">
+                <div className="absolute w-4 h-4 bg-[#4A9B7F] rounded-full" />
+                <div className="absolute w-4 h-4 bg-[#4A9B7F] rounded-full animate-ping" />
+              </div>
+            </div>
+          </div>
+
+          {/* Title and tagline */}
+          <div className="text-center space-y-3">
+            <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 tracking-tight">CalmSync</h1>
+            <p className="text-gray-500 text-base">Your personal relaxation companion</p>
+          </div>
+
+          {/* Success message */}
+          <div className="space-y-4 text-center animate-fade-in">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#4A9B7F]/10 mb-4">
+              <svg
+                className="w-6 h-6 text-[#4A9B7F]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Check your email
+            </h2>
+            {email && (
+              <p className="text-sm text-gray-500">
+                We've sent a magic link to <strong>{email}</strong>
+              </p>
+            )}
+            <p className="text-sm text-gray-500">
+              Click the link in the email to sign in.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
