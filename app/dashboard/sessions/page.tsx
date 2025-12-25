@@ -33,13 +33,18 @@ export default async function SessionsPage() {
             createdAt: true,
           },
         },
-        items: {
-          select: {
-            contentType: true,
-            title: true,
-            url: true,
+        sessionItems: {
+          include: {
+            contentItem: {
+              select: {
+                type: true,
+                title: true,
+                url: true,
+              },
+            },
           },
           take: 5, // Limit items per session for display
+          orderBy: { orderIndex: 'asc' },
         },
       },
       orderBy: { startedAt: 'desc' },
@@ -94,11 +99,11 @@ export default async function SessionsPage() {
                         <span className="text-sm font-medium">Intensity: </span>
                         <span className="text-sm">{severity}/10</span>
                       </div>
-                      {session.items.length > 0 && (
+                      {session.sessionItems.length > 0 && (
                         <div>
                           <span className="text-sm font-medium">Content: </span>
                           <span className="text-sm text-gray-600">
-                            {session.items.length} item(s)
+                            {session.sessionItems.length} item(s)
                           </span>
                         </div>
                       )}
