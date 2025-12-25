@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+import { getCurrentUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -10,9 +10,9 @@ import { DeleteAccountButton } from '@/components/settings/DeleteAccountButton';
  * Requires authentication
  */
 export default async function SettingsPage() {
-  const session = await auth();
+  const user = await getCurrentUser();
 
-  if (!session?.user) {
+  if (!user) {
     redirect('/');
   }
 
@@ -34,14 +34,14 @@ export default async function SettingsPage() {
             <label className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2 block">
               Email
             </label>
-            <p className="text-base font-medium text-gray-800 dark:text-gray-200">{session.user.email}</p>
+            <p className="text-base font-medium text-gray-800 dark:text-gray-200">{user.email}</p>
           </div>
-          {session.user.name && (
+          {user.name && (
             <div>
               <label className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2 block">
                 Name
               </label>
-              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{session.user.name}</p>
+              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{user.name}</p>
             </div>
           )}
         </div>

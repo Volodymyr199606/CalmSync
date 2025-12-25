@@ -1,6 +1,7 @@
 "use client"
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { User, History, Calendar, Settings, LogOut, ChevronDown } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -12,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { handleSignOut } from "@/app/actions/signout"
 
 interface NavigationHeaderProps {
   userName?: string
@@ -26,6 +28,12 @@ export function NavigationHeader({
   userInitials,
   userImage,
 }: NavigationHeaderProps) {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4">
@@ -39,9 +47,10 @@ export function NavigationHeader({
         </Link>
 
         {/* Right side - User dropdown */}
-        <div className="flex items-center" suppressHydrationWarning>
-          {/* User Dropdown Menu */}
-          <DropdownMenu>
+        <div className="flex items-center">
+          {/* User Dropdown Menu - Only render after mount to avoid hydration mismatch */}
+          {mounted ? (
+            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 h-9 rounded-full px-3">
                 <Avatar className="h-7 w-7">
@@ -86,14 +95,27 @@ export function NavigationHeader({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/api/auth/signout" className="cursor-pointer text-red-600 focus:text-red-600">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sign out</span>
-                </Link>
-              </DropdownMenuItem>
+              <form action={handleSignOut}>
+                <DropdownMenuItem asChild>
+                  <button type="submit" className="w-full text-left cursor-pointer text-red-600 focus:text-red-600 flex items-center">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sign out</span>
+                  </button>
+                </DropdownMenuItem>
+              </form>
             </DropdownMenuContent>
           </DropdownMenu>
+          ) : (
+            // Fallback button while mounting to prevent layout shift
+            <Button variant="ghost" className="flex items-center gap-2 h-9 rounded-full px-3" disabled>
+              <Avatar className="h-7 w-7">
+                <AvatarImage src={userImage || undefined} alt={userName} />
+                <AvatarFallback className="text-xs font-medium bg-muted">{userInitials}</AvatarFallback>
+              </Avatar>
+              <span className="hidden md:inline-block text-sm font-medium">{userName}</span>
+              <ChevronDown className="h-4 w-4 opacity-50" />
+            </Button>
+          )}
         </div>
       </div>
     </header>

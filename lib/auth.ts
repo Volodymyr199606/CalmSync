@@ -1,12 +1,30 @@
-import { auth } from "../auth";
+import { createClient } from "@/lib/supabase/server";
+import { syncSupabaseUserToPrisma } from "@/lib/supabase/user-sync";
 
 /**
- * Get the current authenticated user
+ * Get the current authenticated user from Supabase
  * @returns The current user or null if not authenticated
  */
 export async function getCurrentUser() {
-  const session = await auth();
-  return session?.user ?? null;
+  const supabase = await createClient();
+  const {
+    data: { user: supabaseUser },
+  } = await supabase.auth.getUser();
+
+  if (!supabaseUser) {
+    return null;
+  }
+
+  // Sync Supabase user to Prisma
+  const prismaUser = await syncSupabaseUserToPrisma(supabaseUser);
+
+  // Return user in a format compatible with existing code
+  return {
+    id: prismaUser.id,
+    email: prismaUser.email,
+    name: prismaUser.name,
+    image: prismaUser.image,
+  };
 }
 
 /**
@@ -27,3 +45,14 @@ export async function isAuthenticated() {
   return !!user;
 }
 
+/**
+ * Get the current Supabase session (for direct Supabase operations)
+ * @returns The Supabase session or null if not authenticated
+ */
+export async function getSupabaseSession() {
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  return session;
+}

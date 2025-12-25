@@ -1,4 +1,4 @@
-import { auth } from "@/auth"
+import { getCurrentUser } from "@/lib/auth"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { FeelingType } from "@prisma/client"
@@ -90,14 +90,14 @@ async function calculateStreak(userId: string): Promise<number> {
 
 export async function GET(request: Request) {
   try {
-    const session = await auth()
+    const currentUser = await getCurrentUser()
 
-    if (!session?.user?.email) {
+    if (!currentUser?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+      where: { email: currentUser.email },
       select: { id: true },
     })
 

@@ -4,7 +4,8 @@
  */
 
 import Link from 'next/link';
-import { auth, signOut } from '@/auth';
+import { getCurrentUser } from '@/lib/auth';
+import { signOut } from '@/app/actions/auth';
 import { Button } from '@/components/ui/button';
 import { MobileMenu } from '@/components/layout/MobileMenu';
 import type { SVGProps } from 'react';
@@ -33,11 +34,11 @@ function CalmSyncIcon(props: SVGProps<SVGSVGElement>) {
  * Desktop Navigation - Home, History, Account, Sign Out
  */
 async function DesktopNav() {
-  const session = await auth();
+  const user = await getCurrentUser();
 
-  if (!session?.user) {
+  if (!user) {
     return (
-      <Link href="/api/auth/signin">
+      <Link href="/">
         <Button variant="ghost" size="sm" className="h-8 px-3 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">
           Sign In
         </Button>
@@ -72,20 +73,15 @@ async function DesktopNav() {
       {/* Account */}
       <div className="flex items-center gap-2">
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 text-xs font-medium text-purple-700">
-          {session.user.email?.charAt(0).toUpperCase()}
+          {user.email?.charAt(0).toUpperCase()}
         </div>
         <span className="text-xs text-gray-700 hidden lg:inline max-w-[200px] truncate">
-          {session.user.email}
+          {user.email}
         </span>
       </div>
 
       {/* Sign Out */}
-      <form
-        action={async () => {
-          'use server';
-          await signOut({ redirectTo: '/' });
-        }}
-      >
+      <form action={signOut}>
         <Button
           type="submit"
           variant="ghost"
@@ -104,14 +100,11 @@ async function DesktopNav() {
  * AppShell - Main layout wrapper with gradient background
  */
 export async function AppShell({ children }: { children: React.ReactNode }) {
-  const session = await auth();
-  const userEmail = session?.user?.email;
+  const user = await getCurrentUser();
+  const userEmail = user?.email;
   const userInitial = userEmail?.charAt(0).toUpperCase() || '';
 
-  const handleSignOut = async () => {
-    'use server';
-    await signOut({ redirectTo: '/' });
-  };
+  const handleSignOut = signOut;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50/40 to-purple-50/30">

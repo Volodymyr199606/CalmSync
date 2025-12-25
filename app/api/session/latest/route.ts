@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 /**
@@ -8,9 +8,9 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
+    const currentUser = await getCurrentUser();
 
-    if (!session?.user?.email) {
+    if (!currentUser?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+      where: { email: currentUser.email },
       select: { id: true },
     });
 

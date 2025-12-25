@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logger, extractErrorInfo } from '@/lib/logger';
 import * as Sentry from '@sentry/nextjs';
@@ -12,8 +12,8 @@ import * as Sentry from '@sentry/nextjs';
 export async function DELETE(req: NextRequest) {
   try {
     // Authenticate the user
-    const session = await auth();
-    if (!session?.user?.id) {
+    const currentUser = await getCurrentUser();
+    if (!currentUser?.id) {
       logger.warn('Unauthorized account deletion attempt');
       return NextResponse.json(
         { error: 'Unauthorized. Please log in to delete your account.' },
@@ -21,7 +21,7 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    const userId = session.user.id;
+    const userId = currentUser.id;
     logger.info('Account deletion initiated', { userId });
 
     // Verify the user exists

@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { generateRelaxationExperience } from '@/lib/relaxation-engine';
 import { logger, extractErrorInfo } from '@/lib/logger';
@@ -50,12 +50,12 @@ type ApiResponse = ExperienceResponse | ErrorResponse;
 export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
     // 1. Authenticate user
-    const session = await auth();
+    const currentUser = await getCurrentUser();
     
-    if (!session?.user?.email) {
+    if (!currentUser?.email) {
       logger.warn('Unauthorized experience request', {
         path: '/api/experience',
-        hasSession: !!session,
+        hasUser: !!currentUser,
       });
       return NextResponse.json(
         { success: false, error: 'Unauthorized. Please sign in.' },
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
 
     if (!validation.success) {
       logger.warn('Invalid experience request data', {
-        email: session.user.email,
+        email: currentUser.email,
         errors: validation.error.issues,
       });
       return NextResponse.json(
@@ -86,13 +86,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
 
     // 3. Find user in database
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+      where: { email: currentUser.email },
       select: { id: true, email: true },
     });
 
     if (!user) {
       logger.error('Authenticated user not found in database', {
-        email: session.user.email,
+        email: currentUser.email,
       });
       return NextResponse.json(
         { success: false, error: 'User not found' },

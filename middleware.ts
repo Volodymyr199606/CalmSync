@@ -1,20 +1,53 @@
-import { auth } from "./auth";
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
-  const isOnDashboard = req.nextUrl.pathname.startsWith("/dashboard");
+export async function middleware(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({
+    request,
+  })
 
-  if (isOnDashboard && !isLoggedIn) {
-    return Response.redirect(new URL("/", req.url));
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
+  // Refresh session if expired - required for Server Components
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const isOnDashboard = request.nextUrl.pathname.startsWith("/dashboard");
+  const isOnRoot = request.nextUrl.pathname === "/";
+
+  // Redirect unauthenticated users away from protected routes
+  if (isOnDashboard && !user) {
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // Allow authenticated users to access the home page if they want
-  // (removed auto-redirect to dashboard)
+  // Redirect authenticated users from root to dashboard
+  if (isOnRoot && user) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
 
-  return;
-});
+  return supabaseResponse
+}
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|auth/callback).*)"],
 };
-

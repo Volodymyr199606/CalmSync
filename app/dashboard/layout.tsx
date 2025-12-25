@@ -1,5 +1,5 @@
 import type React from "react"
-import { auth } from "@/auth"
+import { getCurrentUser } from "@/lib/auth"
 import { NavigationHeader } from "@/components/navigation-header"
 
 export default async function DashboardLayout({
@@ -7,11 +7,11 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
+  const user = await getCurrentUser()
   
   // Calculate user initials
-  const userName = session?.user?.name || null
-  const userEmail = session?.user?.email || null
+  const userName = user?.name || null
+  const userEmail = user?.email || null
   const userInitials = userName
     ? userName
         .split(" ")

@@ -3,7 +3,7 @@
  * Server component that loads real-time statistics and history from database
  */
 
-import { auth } from "@/auth"
+import { getCurrentUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { FeelingType } from "@prisma/client"
@@ -96,20 +96,20 @@ async function calculateStreak(userId: string): Promise<number> {
 
 export default async function HistoryPage() {
   // 1. Authenticate user
-  const session = await auth()
+  const currentUser = await getCurrentUser()
 
-  if (!session?.user?.email) {
-    redirect("/api/auth/signin")
+  if (!currentUser?.email) {
+    redirect("/")
   }
 
   // 2. Load user from database
   const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
+    where: { email: currentUser.email },
     select: { id: true },
   })
 
   if (!user) {
-    redirect("/api/auth/signin")
+    redirect("/")
   }
 
   const userId = user.id

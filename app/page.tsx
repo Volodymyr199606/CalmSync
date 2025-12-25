@@ -34,6 +34,18 @@ export default function LandingPage() {
     setParticles(generatedParticles)
   }, [])
 
+  // Check for error in URL params (from auth callback)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const errorParam = params.get("error")
+    if (errorParam) {
+      setError(decodeURIComponent(errorParam))
+      // Clean up URL by removing error param
+      const newUrl = window.location.pathname
+      window.history.replaceState({}, "", newUrl)
+    }
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     

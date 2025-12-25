@@ -1,13 +1,13 @@
-import { auth } from '@/auth'
+import { getCurrentUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { DashboardForm } from './DashboardForm'
 
 export default async function DashboardPage() {
-  // Get current user session
-  const session = await auth()
+  // Get current user
+  const user = await getCurrentUser()
 
-  if (!session?.user?.email) {
-    redirect('/api/auth/signin')
+  if (!user?.email) {
+    redirect('/')
   }
 
   return <DashboardForm />
