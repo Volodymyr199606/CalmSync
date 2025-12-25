@@ -145,3 +145,15 @@ function VerifyRequestContent() {
     </div>
   )
 }
+
+export default function VerifyRequestPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    }>
+      <VerifyRequestContent />
+    </Suspense>
+  )
+}
