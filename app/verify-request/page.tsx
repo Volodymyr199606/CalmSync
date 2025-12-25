@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 
 interface Particle {
@@ -11,7 +11,7 @@ interface Particle {
   duration: string
 }
 
-export default function VerifyRequestPage() {
+function VerifyRequestContent() {
   const searchParams = useSearchParams()
   const email = searchParams.get("email") || ""
   const [particles, setParticles] = useState<Particle[]>([])
