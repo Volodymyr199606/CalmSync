@@ -58,10 +58,16 @@ export function DashboardForm() {
       
       // Redirect to chill page after successful experience creation
       if (data.success && data.data?.session) {
+        // Redirect to chill page - it will fetch the latest session
         router.push("/chill")
+        return // Exit early to prevent any further execution
+      } else {
+        console.error("Experience creation response missing session data:", data)
+        alert("Failed to create experience. Please try again.")
       }
     } catch (error) {
       console.error("Error creating experience:", error)
+      alert("Failed to create experience. Please try again.")
     } finally {
       setIsSubmitting(false)
     }
