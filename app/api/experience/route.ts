@@ -93,23 +93,48 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
         select: { id: true, email: true },
       });
     } catch (dbError) {
+      // Check if DATABASE_URL is missing
+      if (!process.env.DATABASE_URL) {
+        logger.error('DATABASE_URL environment variable is missing', {
+          email: currentUser.email,
+          vercel: !!process.env.VERCEL,
+        });
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Database configuration error. DATABASE_URL is not set. Please configure environment variables in Vercel.',
+            details: process.env.VERCEL 
+              ? 'Go to Vercel Dashboard → Settings → Environment Variables → Add DATABASE_URL'
+              : 'Set DATABASE_URL in your .env.local file',
+          },
+          { status: 503 }
+        );
+      }
+
       // Check if it's a database connection error
-      const isConnectionError = dbError instanceof Error && 
-        (dbError.message.includes("Can't reach database server") ||
-         dbError.message.includes("P1001") ||
-         dbError.message.includes("connection"));
+      const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
+      const isConnectionError = 
+        errorMessage.includes("Can't reach database server") ||
+        errorMessage.includes("P1001") ||
+        errorMessage.includes("connection") ||
+        errorMessage.includes("connect") ||
+        errorMessage.includes("timeout") ||
+        errorMessage.includes("ECONNREFUSED");
       
       if (isConnectionError) {
         logger.error('Database connection error', {
           email: currentUser.email,
-          error: dbError instanceof Error ? dbError.message : String(dbError),
+          error: errorMessage,
+          hasDatabaseUrl: !!process.env.DATABASE_URL,
         });
         return NextResponse.json(
           { 
             success: false, 
             error: 'Database connection error. Please check your database configuration.',
             details: process.env.NODE_ENV === 'development' 
-              ? (dbError instanceof Error ? dbError.message : String(dbError))
+              ? errorMessage
+              : process.env.VERCEL
+              ? 'Verify DATABASE_URL is correctly set in Vercel environment variables'
               : undefined,
           },
           { status: 503 }
