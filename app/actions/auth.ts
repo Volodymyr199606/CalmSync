@@ -7,27 +7,36 @@ import { cookies } from "next/headers";
 /**
  * Clear PKCE-related cookies to prevent mismatches when switching devices
  * This helps resolve "code challenge does not match" errors on mobile
+ * 
+ * Supabase stores PKCE code verifiers in cookies with names like:
+ * - sb-{project-ref}-auth-token
+ * - sb-{project-ref}-auth-token-code-verifier
+ * And uses cookie prefixes like "sb-" followed by the project reference
  */
 async function clearPkceCookies() {
   const cookieStore = await cookies();
-  const pkceCookieNames = [
-    "sb-auth-token", // Supabase auth token cookie
-    "sb-auth-token.0", // Sometimes Supabase uses numbered cookies
-    "sb-auth-token.1",
-  ];
   
-  // Get all cookies and clear any that look like PKCE/auth cookies
+  // Get all cookies and clear any that look like Supabase auth/PKCE cookies
   const allCookies = cookieStore.getAll();
   for (const cookie of allCookies) {
+    const name = cookie.name.toLowerCase();
+    // Match Supabase cookie patterns: sb-*, *-auth-token*, *-code-verifier*
     if (
-      cookie.name.includes("sb-") || 
-      cookie.name.includes("supabase") ||
-      cookie.name.includes("auth-token")
+      name.startsWith("sb-") || 
+      name.includes("supabase") ||
+      name.includes("auth-token") ||
+      name.includes("code-verifier") ||
+      name.includes("pkce")
     ) {
       try {
-        cookieStore.delete(cookie.name);
+        // Delete with path and domain options to ensure it's cleared properly
+        cookieStore.delete({
+          name: cookie.name,
+          path: "/",
+          // Don't specify domain to match the cookie's original domain
+        });
       } catch {
-        // Ignore errors when clearing cookies
+        // Ignore errors when clearing cookies (some may be httpOnly)
       }
     }
   }
