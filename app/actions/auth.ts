@@ -68,7 +68,8 @@ export async function submitEmail(formData: FormData) {
     return { error: "Authentication service is not configured. Please check your environment variables." };
   }
 
-  // Get the base URL for redirect
+  // Get the base URL for redirect - ensure it's the full production URL
+  // This is critical for mobile browsers to properly handle redirects
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
                   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
                   "http://localhost:3000");
@@ -80,7 +81,8 @@ export async function submitEmail(formData: FormData) {
     
     const supabase = await createClient();
     
-    // Configure email redirect URL - callback will redirect to /dashboard
+    // Configure email redirect URL - use absolute URL for mobile browser compatibility
+    // Mobile browsers (especially Safari, Chrome mobile) require absolute URLs
     const redirectTo = `${baseUrl}/auth/callback`;
     
     const { error } = await supabase.auth.signInWithOtp({
@@ -88,6 +90,7 @@ export async function submitEmail(formData: FormData) {
       options: {
         emailRedirectTo: redirectTo,
         shouldCreateUser: true, // Ensure user is created if they don't exist
+        // PKCE flow is enabled by default in Supabase for better security and mobile support
       },
     });
     
