@@ -2,6 +2,36 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+
+/**
+ * Clear PKCE-related cookies to prevent mismatches when switching devices
+ * This helps resolve "code challenge does not match" errors on mobile
+ */
+async function clearPkceCookies() {
+  const cookieStore = await cookies();
+  const pkceCookieNames = [
+    "sb-auth-token", // Supabase auth token cookie
+    "sb-auth-token.0", // Sometimes Supabase uses numbered cookies
+    "sb-auth-token.1",
+  ];
+  
+  // Get all cookies and clear any that look like PKCE/auth cookies
+  const allCookies = cookieStore.getAll();
+  for (const cookie of allCookies) {
+    if (
+      cookie.name.includes("sb-") || 
+      cookie.name.includes("supabase") ||
+      cookie.name.includes("auth-token")
+    ) {
+      try {
+        cookieStore.delete(cookie.name);
+      } catch {
+        // Ignore errors when clearing cookies
+      }
+    }
+  }
+}
 
 export async function submitEmail(formData: FormData) {
   const email = formData.get("email") as string;
@@ -35,6 +65,10 @@ export async function submitEmail(formData: FormData) {
                   "http://localhost:3000");
   
   try {
+    // Clear any stale PKCE cookies before initiating new login
+    // This prevents "code challenge does not match" errors when using magic links on mobile
+    await clearPkceCookies();
+    
     const supabase = await createClient();
     
     // Configure email redirect URL - callback will redirect to /dashboard
@@ -50,6 +84,14 @@ export async function submitEmail(formData: FormData) {
     
     if (error) {
       console.error("[AUTH ACTION] Supabase signInWithOtp error:", error);
+      
+      // Provide user-friendly error messages for common issues
+      if (error.message?.includes("code challenge") || error.message?.includes("code verifier")) {
+        return { 
+          error: "Authentication session expired. Please try again. If this persists, try clearing your browser cookies." 
+        };
+      }
+      
       return { error: error.message || "Failed to send magic link. Please try again." };
     }
     

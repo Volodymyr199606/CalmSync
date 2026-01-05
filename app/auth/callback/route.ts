@@ -18,9 +18,15 @@ export async function GET(request: NextRequest) {
   // Handle errors from Supabase (like PKCE errors)
   if (error_description || error_code) {
     console.error("[AUTH CALLBACK] Error in callback:", { error_description, error_code });
-    // Still redirect to dashboard - the middleware will handle auth check
-    // But we could also show an error message
-    return NextResponse.redirect(new URL(`/?error=${encodeURIComponent(error_description || "Authentication failed")}`, requestUrl.origin));
+    
+    // Provide user-friendly error message for PKCE errors
+    let userFriendlyError = error_description || "Authentication failed";
+    if (error_description?.toLowerCase().includes("code challenge") || 
+        error_description?.toLowerCase().includes("code verifier")) {
+      userFriendlyError = "Your login link has expired or was used on a different device. Please request a new magic link.";
+    }
+    
+    return NextResponse.redirect(new URL(`/?error=${encodeURIComponent(userFriendlyError)}`, requestUrl.origin));
   }
 
   if (!code) {
@@ -55,7 +61,15 @@ export async function GET(request: NextRequest) {
   
   if (error) {
     console.error("[AUTH CALLBACK] Error exchanging code for session:", error);
-    return NextResponse.redirect(new URL(`/?error=${encodeURIComponent(error.message)}`, requestUrl.origin));
+    
+    // Provide user-friendly error message for PKCE errors
+    let userFriendlyError = error.message;
+    if (error.message?.toLowerCase().includes("code challenge") || 
+        error.message?.toLowerCase().includes("code verifier")) {
+      userFriendlyError = "Your login link has expired or was used on a different device. Please request a new magic link and click it on the same device where you requested it.";
+    }
+    
+    return NextResponse.redirect(new URL(`/?error=${encodeURIComponent(userFriendlyError)}`, requestUrl.origin));
   }
 
   if (!data.session) {
