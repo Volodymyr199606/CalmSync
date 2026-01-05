@@ -75,6 +75,9 @@ export function LandingPageForm({ onSuccessChange }: LandingPageFormProps) {
         <p className="text-sm text-muted-foreground">
           Click the link in the email to sign in.
         </p>
+        <p className="text-xs text-muted-foreground/80 mt-2 px-4">
+          💡 <strong>Tip:</strong> Make sure to click the link in the same browser where you requested it (e.g., if you're using Chrome, click the link in Chrome).
+        </p>
       </div>
     );
   }

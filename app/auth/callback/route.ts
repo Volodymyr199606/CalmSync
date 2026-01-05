@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     
     if (error_description?.toLowerCase().includes("code challenge") || 
         error_description?.toLowerCase().includes("code verifier")) {
-      userFriendlyError = "Your login link has expired or was used on a different device. Please request a new magic link.";
+      userFriendlyError = "Please click the magic link in the same browser where you requested it. If you started in Telegram, click the link in Telegram. If you started in Chrome, click it in Chrome.";
     } else if (error_description?.toLowerCase().includes("expired") || 
                error_description?.toLowerCase().includes("invalid") ||
                error_code === "token_expired") {
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
     
     if (error.message?.toLowerCase().includes("code challenge") || 
         error.message?.toLowerCase().includes("code verifier")) {
-      userFriendlyError = "Your login link has expired or was used on a different device. Please request a new magic link and click it on the same device where you requested it.";
+      userFriendlyError = "Please click the magic link in the same browser where you requested it. For example, if you started in Telegram, click the link in Telegram. If you started in Chrome, click it in Chrome.";
     } else if (error.message?.toLowerCase().includes("expired") || 
                error.message?.toLowerCase().includes("invalid") ||
                error.code === "token_expired") {
