@@ -50,5 +50,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|auth/callback).*)"],
+  // Exclude auth callback from middleware - let it handle auth flow independently
+  // This is important for mobile browsers to properly handle PKCE flow
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|auth).*)"],
 };
