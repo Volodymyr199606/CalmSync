@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { X, Volume2, VolumeX } from "lucide-react"
+import { ChatTrigger } from "@/components/chat/ChatTrigger"
 
 type Feeling = "STRESS" | "ANXIETY" | "DEPRESSION" | "FRUSTRATION"
 
@@ -44,7 +45,11 @@ export default function ChillPage() {
       try {
         const response = await fetch("/api/session/latest")
         if (!response.ok) {
-          console.error("[CHILL] Failed to fetch session")
+          // 404 (no session found) is expected when database is unavailable or no session exists
+          // Only log actual server errors (5xx)
+          if (response.status >= 500) {
+            console.error("[CHILL] Server error fetching session:", response.status)
+          }
           // Fallback to default music
           setAudioUrl("/audio/ambient-1.mp3")
           setIsLoading(false)
@@ -363,6 +368,9 @@ export default function ChillPage() {
           })()}
         </div>
       </div>
+
+      {/* AI Chat Companion */}
+      <ChatTrigger />
     </div>
   )
 }
