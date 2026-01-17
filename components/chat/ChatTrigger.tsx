@@ -20,10 +20,10 @@ export function ChatTrigger() {
       <Button
         onClick={() => setIsOpen(true)}
         size="icon"
-        className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-primary shadow-lg hover:bg-primary/90 transition-all duration-300 hover:scale-125 hover:shadow-2xl hover:ring-4 hover:ring-primary/20 animate-pulse group"
+        className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-primary shadow-lg hover:bg-primary/90 transition-all duration-300 hover:scale-125 hover:shadow-2xl hover:ring-4 hover:ring-primary/20 animate-pulse hover:animate-none group"
         aria-label="Open CalmSync chat"
       >
-        <MessageCircle className="h-8 w-8 transition-transform duration-300 group-hover:scale-110" />
+        <MessageCircle className="h-8 w-8 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
       </Button>
 
       {/* Chat dialog */}

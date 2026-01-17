@@ -311,17 +311,21 @@ export default function ChillPage() {
           variant="ghost"
           size="icon"
           onClick={toggleMute}
-          className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border border-white/20"
+          className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md hover:bg-white/30 hover:scale-110 hover:shadow-lg transition-all duration-300 text-white border border-white/20 hover:border-white/40 group"
         >
-          {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+          {isMuted ? (
+            <VolumeX className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
+          ) : (
+            <Volume2 className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
+          )}
         </Button>
         <Button
           variant="ghost"
           size="icon"
           onClick={handleExit}
-          className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border border-white/20"
+          className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md hover:bg-white/30 hover:scale-110 hover:shadow-lg transition-all duration-300 text-white border border-white/20 hover:border-white/40 group"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-90" />
         </Button>
       </div>
 
