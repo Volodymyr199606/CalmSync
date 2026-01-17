@@ -39,7 +39,7 @@ async function DesktopNav() {
   if (!user) {
     return (
       <Link href="/">
-        <Button variant="ghost" size="sm" className="h-8 px-3 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+        <Button variant="ghost" size="sm" className="h-8 px-3 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 !cursor-pointer">
           Sign In
         </Button>
       </Link>
@@ -53,7 +53,7 @@ async function DesktopNav() {
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 px-3 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+          className="h-8 px-3 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 !cursor-pointer"
         >
           Home
         </Button>
@@ -64,7 +64,7 @@ async function DesktopNav() {
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 px-3 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+          className="h-8 px-3 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 !cursor-pointer"
         >
           History
         </Button>
@@ -86,7 +86,7 @@ async function DesktopNav() {
           type="submit"
           variant="ghost"
           size="sm"
-          className="h-8 px-3 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+          className="h-8 px-3 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 !cursor-pointer"
         >
           Sign Out
         </Button>
@@ -112,7 +112,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-30 border-b border-gray-200/50 bg-white/60 backdrop-blur-sm">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 lg:px-8">
           {/* Logo / Brand - Left */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 cursor-pointer">
             <div className="flex h-8 w-8 items-center justify-center">
               <CalmSyncIcon className="h-7 w-7 text-purple-600 drop-shadow-sm" />
             </div>

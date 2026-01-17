@@ -184,7 +184,7 @@ export default function LandingPage() {
                 <Button 
                   type="submit"
                   disabled={isPending}
-                  className="w-full h-12 rounded-xl bg-[#4A9B7F] hover:bg-[#3d8168] text-white font-normal shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full h-12 rounded-xl bg-[#4A9B7F] hover:bg-[#3d8168] text-white font-normal shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed !cursor-pointer"
                 >
                   {isPending ? (
                     <>
