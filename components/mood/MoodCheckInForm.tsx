@@ -130,7 +130,7 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
                 type="button"
                 onClick={() => handleFeelingSelect(feeling.value)}
                 className={`
-                  flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white py-3 hover:bg-purple-50 hover:border-purple-300 text-sm font-medium transition
+                  flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white py-3 hover:bg-purple-50 hover:border-purple-300 text-sm font-medium transition cursor-pointer
                   ${selectedFeeling === feeling.value 
                     ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200 text-purple-700' 
                     : 'text-slate-700'
@@ -159,7 +159,7 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
                       onClick={() => setSeverity(value)}
                       disabled={isSubmitting}
                       className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium transition-colors",
+                        "flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium transition-colors cursor-pointer",
                         isActive
                           ? "bg-purple-600 text-white shadow-sm"
                           : "bg-slate-100 text-slate-600 hover:bg-slate-200",
@@ -202,7 +202,7 @@ export function MoodCheckInForm({ onExperienceGenerated }: MoodCheckInFormProps)
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-xl bg-purple-600 text-white font-medium py-3 mt-6 hover:bg-purple-700 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full rounded-xl bg-purple-600 text-white font-medium py-3 mt-6 hover:bg-purple-700 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
             {isSubmitting ? (
               <span className="flex items-center justify-center gap-2">

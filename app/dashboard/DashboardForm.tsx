@@ -531,7 +531,7 @@ export function DashboardForm() {
                     type="button"
                     onClick={() => setFeeling(item.id)}
                     className={`
-                      p-4 rounded-xl border transition-all
+                      p-4 rounded-xl border transition-all cursor-pointer
                       ${
                         feeling === item.id
                           ? "border-[#4A9B7F] bg-[#4A9B7F]/5"
@@ -559,7 +559,7 @@ export function DashboardForm() {
                     type="button"
                     onClick={() => setIntensity(num)}
                     className={`
-                      h-10 w-full rounded-lg text-sm font-medium transition-all shadow-sm
+                      h-10 w-full rounded-lg text-sm font-medium transition-all shadow-sm cursor-pointer
                       ${
                         intensity >= num
                           ? "bg-[#3d8168] hover:bg-[#35705a] text-white shadow-md"
@@ -597,7 +597,7 @@ export function DashboardForm() {
             {/* Submit */}
             <Button
               type="submit"
-              className="w-full h-12 rounded-xl bg-[#3d8168] hover:bg-[#35705a] text-white font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full h-12 rounded-xl bg-[#3d8168] hover:bg-[#35705a] text-white font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] !cursor-pointer"
               disabled={!feeling || isSubmitting}
             >
               {isSubmitting ? "Creating Experience..." : "Create Relaxation Experience"}
