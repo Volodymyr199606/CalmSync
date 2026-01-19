@@ -88,9 +88,9 @@ export function CalmSyncChat() {
   };
 
   return (
-    <Card className="flex h-full flex-col">
-      <CardHeader className="border-b pb-4">
-        <CardTitle className="text-lg font-semibold">CalmSync Companion</CardTitle>
+    <Card className="flex h-full flex-col bg-transparent border-0 shadow-none">
+      <CardHeader className="border-b border-white/10 pb-4">
+        <CardTitle className="text-lg font-semibold text-white/90">CalmSync Companion</CardTitle>
       </CardHeader>
 
       <CardContent className="flex flex-1 flex-col gap-4 p-4">
@@ -105,10 +105,10 @@ export function CalmSyncChat() {
                 }`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                  className={`max-w-[80%] rounded-lg px-4 py-2 backdrop-blur-sm ${
                     message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-muted-foreground'
+                      ? 'bg-emerald-500/30 text-white border border-emerald-400/30'
+                      : 'bg-white/10 text-white/90 border border-white/20'
                   }`}
                 >
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -120,7 +120,7 @@ export function CalmSyncChat() {
 
             {isSending && (
               <div className="flex justify-start">
-                <div className="bg-muted text-muted-foreground rounded-lg px-4 py-2">
+                <div className="bg-white/10 text-white/90 rounded-lg px-4 py-2 border border-white/20 backdrop-blur-sm">
                   <Loader2 className="h-4 w-4 animate-spin" />
                 </div>
               </div>
@@ -136,7 +136,7 @@ export function CalmSyncChat() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
-            className="min-h-[60px] resize-none"
+            className="min-h-[60px] resize-none bg-white/10 backdrop-blur-sm border-white/20 text-white placeholder:text-white/50 focus-visible:ring-white/30 focus-visible:border-white/40"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -149,7 +149,7 @@ export function CalmSyncChat() {
             type="submit"
             size="icon"
             disabled={!input.trim() || isSending}
-            className="shrink-0 cursor-pointer"
+            className="shrink-0 cursor-pointer bg-emerald-500/30 hover:bg-emerald-500/40 border border-emerald-400/30 text-white backdrop-blur-sm"
           >
             {isSending ? (
               <Loader2 className="h-4 w-4 animate-spin" />

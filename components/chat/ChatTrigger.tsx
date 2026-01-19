@@ -7,8 +7,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from '@/components/ui/dialog';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, X } from 'lucide-react';
 import { CalmSyncChat } from './CalmSyncChat';
 
 export function ChatTrigger() {
@@ -28,7 +29,21 @@ export function ChatTrigger() {
 
       {/* Chat dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-md h-[600px] p-0 flex flex-col">
+        <DialogContent 
+          className="max-w-md h-[600px] p-0 flex flex-col bg-slate-900/80 backdrop-blur-xl border-white/20 shadow-2xl"
+          showCloseButton={false}
+        >
+          {/* Custom glass-morphism close button */}
+          <DialogClose asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 border border-white/20 hover:border-white/30 text-white/80 hover:text-white transition-all duration-300 cursor-pointer"
+              aria-label="Close chat"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogClose>
           <DialogHeader className="px-6 pt-6 pb-0">
             <DialogTitle className="sr-only">CalmSync Chat</DialogTitle>
           </DialogHeader>
