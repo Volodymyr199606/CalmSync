@@ -149,7 +149,7 @@ export function CalmSyncChat() {
             type="submit"
             size="icon"
             disabled={!input.trim() || isSending}
-            className="shrink-0"
+            className="shrink-0 cursor-pointer"
           >
             {isSending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
