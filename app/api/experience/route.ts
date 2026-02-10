@@ -121,6 +121,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       }
     }
 
+    // Ensure we have a user object for the rest of the handler (findUnique can return null)
+    const resolvedUser = user ?? {
+      id: currentUser.id,
+      email: currentUser.email,
+    };
+
     // 4. Determine feeling and severity
     let feeling: Feeling;
     let severity: number;
@@ -139,13 +145,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       const moodCheckIn = await prisma.moodCheckIn.findUnique({
         where: {
           id: requestData.moodCheckInId,
-          userId: user.id, // Ensure user owns this mood check-in
+          userId: resolvedUser.id, // Ensure user owns this mood check-in
         },
       });
 
       if (!moodCheckIn) {
         logger.warn('Mood check-in not found or unauthorized', {
-          userId: user.id,
+          userId: resolvedUser.id,
           moodCheckInId: requestData.moodCheckInId,
         });
         return NextResponse.json(
@@ -159,7 +165,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       moodCheckInId = moodCheckIn.id;
 
       logger.debug('Loaded mood check-in for experience', {
-        userId: user.id,
+        userId: resolvedUser.id,
         moodCheckInId,
         feeling,
         severity,
@@ -170,7 +176,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       severity = requestData.severity;
 
       logger.debug('Using direct mood input for experience', {
-        userId: user.id,
+        userId: resolvedUser.id,
         feeling,
         severity,
       });
@@ -180,7 +186,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     const experience = generateRelaxationExperience({ feeling, severity: severity as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 });
 
     logger.info('Relaxation experience generated', {
-      userId: user.id,
+      userId: resolvedUser.id,
       feeling,
       severity,
       primaryType: experience.primaryType,
@@ -195,7 +201,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       // Create RelaxationSession in database
       const relaxationSession = await prisma.relaxationSession.create({
         data: {
-          userId: user.id,
+          userId: resolvedUser.id,
           moodCheckInId: moodCheckInId || undefined,
           feeling,
           severity,
@@ -294,7 +300,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       });
 
       logger.info('Relaxation session saved to database', {
-        userId: user.id,
+        userId: resolvedUser.id,
         sessionId: relaxationSession.id,
         itemsCreated: sessionItemsData.length,
       });
@@ -318,7 +324,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       
       responseSession = {
         id: tempSessionId,
-        userId: user.id,
+        userId: resolvedUser.id,
         moodCheckInId: moodCheckInId,
         feeling,
         severity,
@@ -342,7 +348,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       }));
 
       logger.info('Relaxation experience generated without database', {
-        userId: user.id,
+        userId: resolvedUser.id,
         feeling,
         severity,
         itemCount: sessionItemsData.length,

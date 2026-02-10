@@ -4,7 +4,15 @@ import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { FeelingType } from '@prisma/client'
+import { FeelingType, type Prisma } from '@prisma/client'
+
+// Type for relaxation session with the relations we fetch
+type SessionWithRelations = Prisma.RelaxationSessionGetPayload<{
+  include: {
+    moodCheckIn: { select: { feeling: true, severity: true, createdAt: true } }
+    sessionItems: { include: { contentItem: { select: { type: true, title: true, url: true } } } }
+  }
+}>
 
 // Map database FeelingType to display names
 const feelingDisplayNames: Record<FeelingType, string> = {
@@ -24,7 +32,7 @@ export default async function SessionsPage() {
 
     // Try to find user in database (optional - app works without it)
     let dbUser;
-    let sessions = [];
+    let sessions: SessionWithRelations[] = [];
     try {
       dbUser = await prisma.user.findUnique({
         where: { email: user.email },
