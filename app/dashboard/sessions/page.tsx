@@ -22,43 +22,62 @@ export default async function SessionsPage() {
       redirect('/')
     }
 
-    const dbUser = await prisma.user.findUnique({
-      where: { email: user.email },
-      select: { id: true },
-    })
+    // Try to find user in database (optional - app works without it)
+    let dbUser;
+    let sessions = [];
+    try {
+      dbUser = await prisma.user.findUnique({
+        where: { email: user.email },
+        select: { id: true },
+      })
 
-    if (!dbUser) {
-      redirect('/')
-    }
-
-    // Get all relaxation sessions for the user
-    const sessions = await prisma.relaxationSession.findMany({
-      where: { userId: dbUser.id },
-      include: {
-        moodCheckIn: {
-          select: {
-            feeling: true,
-            severity: true,
-            createdAt: true,
-          },
-        },
-        sessionItems: {
+      if (dbUser) {
+        // Get all relaxation sessions for the user
+        sessions = await prisma.relaxationSession.findMany({
+          where: { userId: dbUser.id },
           include: {
-            contentItem: {
+            moodCheckIn: {
               select: {
-                type: true,
-                title: true,
-                url: true,
+                feeling: true,
+                severity: true,
+                createdAt: true,
               },
             },
+            sessionItems: {
+              include: {
+                contentItem: {
+                  select: {
+                    type: true,
+                    title: true,
+                    url: true,
+                  },
+                },
+              },
+              take: 5, // Limit items per session for display
+              orderBy: { orderIndex: 'asc' },
+            },
           },
-          take: 5, // Limit items per session for display
-          orderBy: { orderIndex: 'asc' },
-        },
-      },
-      orderBy: { startedAt: 'desc' },
-      take: 50,
-    })
+          orderBy: { startedAt: 'desc' },
+          take: 50,
+        })
+      }
+    } catch (dbError) {
+      // Database unavailable - continue with empty sessions array
+      // Silently handle connection errors - they're expected when DB is unavailable
+      const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
+      const isConnectionError = 
+        errorMessage.includes("Can't reach database server") ||
+        errorMessage.includes("P1001") ||
+        errorMessage.includes("connection") ||
+        errorMessage.includes("connect") ||
+        errorMessage.includes("timeout") ||
+        errorMessage.includes("ECONNREFUSED");
+      
+      if (!isConnectionError) {
+        console.warn('[SESSIONS PAGE] Database error (showing empty state):', errorMessage);
+      }
+      // Continue with empty sessions array
+    }
 
     return (
       <div className="container mx-auto max-w-6xl px-4 py-8">
@@ -128,7 +147,40 @@ export default async function SessionsPage() {
       </div>
     )
   } catch (error) {
-    console.error('[SESSIONS PAGE] Error loading sessions:', error)
-    redirect('/dashboard')
+    // Only log unexpected errors (not connection errors)
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isConnectionError = 
+      errorMessage.includes("Can't reach database server") ||
+      errorMessage.includes("P1001") ||
+      errorMessage.includes("connection") ||
+      errorMessage.includes("connect") ||
+      errorMessage.includes("timeout") ||
+      errorMessage.includes("ECONNREFUSED");
+    
+    if (!isConnectionError) {
+      console.error('[SESSIONS PAGE] Error loading sessions:', error);
+    }
+    
+    // Show empty state instead of redirecting
+    return (
+      <div className="container mx-auto max-w-6xl px-4 py-8">
+        <div className="mb-6">
+          <Link href="/dashboard">
+            <Button variant="outline">← Back to Dashboard</Button>
+          </Link>
+        </div>
+
+        <h1 className="text-3xl font-bold mb-8">My Sessions</h1>
+
+        <Card>
+          <CardContent className="p-12 text-center">
+            <p className="text-gray-500 mb-4">No sessions available.</p>
+            <Link href="/dashboard">
+              <Button>Create Your First Session</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 }

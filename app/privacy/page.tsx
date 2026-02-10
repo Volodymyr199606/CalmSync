@@ -132,7 +132,7 @@ export default function PrivacyPage() {
                 <strong>Vercel:</strong> Hosting and deployment
               </li>
               <li>
-                <strong>Neon:</strong> Database hosting (PostgreSQL)
+                <strong>Supabase:</strong> Database hosting (PostgreSQL)
               </li>
               <li>
                 <strong>Resend:</strong> Email delivery for authentication

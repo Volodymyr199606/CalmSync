@@ -10,13 +10,33 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: currentUser.email },
-      select: { id: true },
-    })
+    // Try to find user in database (optional - app works without it)
+    let user;
+    try {
+      user = await prisma.user.findUnique({
+        where: { email: currentUser.email },
+        select: { id: true },
+      });
+    } catch (dbError) {
+      // Database unavailable - return empty array
+      const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
+      const isConnectionError = 
+        errorMessage.includes("Can't reach database server") ||
+        errorMessage.includes("P1001") ||
+        errorMessage.includes("connection") ||
+        errorMessage.includes("connect") ||
+        errorMessage.includes("timeout") ||
+        errorMessage.includes("ECONNREFUSED");
+      
+      if (!isConnectionError) {
+        console.warn("[v0] Database error (returning empty mood check-ins):", errorMessage);
+      }
+      
+      return NextResponse.json({ moodCheckIns: [] });
+    }
 
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
+      return NextResponse.json({ moodCheckIns: [] })
     }
 
     const moodCheckIns = await prisma.moodCheckIn.findMany({
@@ -34,7 +54,21 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ moodCheckIns })
   } catch (error) {
-    console.error("[v0] Error fetching mood check-ins:", error)
-    return NextResponse.json({ error: "Failed to fetch mood check-ins" }, { status: 500 })
+    // Only log unexpected errors (not connection errors)
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isConnectionError = 
+      errorMessage.includes("Can't reach database server") ||
+      errorMessage.includes("P1001") ||
+      errorMessage.includes("connection") ||
+      errorMessage.includes("connect") ||
+      errorMessage.includes("timeout") ||
+      errorMessage.includes("ECONNREFUSED");
+    
+    if (!isConnectionError) {
+      console.error("[v0] Error fetching mood check-ins:", error);
+    }
+    
+    // Return empty array instead of 500 error
+    return NextResponse.json({ moodCheckIns: [] });
   }
 }

@@ -19,13 +19,19 @@ if (!databaseUrl) {
 }
 
 // For serverless environments (Vercel), use connection pooling
-// Supabase/Neon provides pooled connections to avoid exhausting connections
+// Supabase provides pooled connections to avoid exhausting connections
 // If DATABASE_URL doesn't contain 'pooler' or 'pooling', we might want to use a pooled URL
 // However, we'll use the provided DATABASE_URL as-is and let Prisma handle pooling
+// In development, only log errors if DATABASE_URL is configured (to reduce noise)
 const prismaConfig: ConstructorParameters<typeof PrismaClient>[0] = {
-  log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+  log: process.env.NODE_ENV === "development" 
+    ? (process.env.DATABASE_URL ? ["query", "error", "warn"] : ["warn"]) 
+    : ["error"],
   // Better error formatting
   errorFormat: process.env.NODE_ENV === "development" ? "pretty" : "minimal",
+  // Disable prepared statements if using Transaction pooler (Supabase)
+  // Transaction pooler doesn't support prepared statements, but Session pooler does
+  // If you see "prepared statement does not exist" errors, switch to Session pooler or direct connection
 };
 
 export const prisma =

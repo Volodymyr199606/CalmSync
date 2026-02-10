@@ -13,8 +13,8 @@ You need to add the following environment variables in the Vercel dashboard:
 ### Required Environment Variables:
 
 1. **DATABASE_URL**
-   - Get from: https://console.neon.tech/
-   - Format: `postgresql://user:password@host.region.neon.tech/dbname?sslmode=require`
+   - Get from: https://supabase.com/dashboard/project/_/settings/database
+   - Format: `postgresql://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres?sslmode=require`
 
 2. **NEXTAUTH_SECRET**
    - Generate a random 32+ character string
@@ -75,7 +75,7 @@ export DATABASE_URL="your-production-connection-string"
 pnpm prisma migrate deploy
 ```
 
-Or use the Neon Console SQL Editor to run the migration SQL files manually.
+Or use the Supabase Dashboard SQL Editor to run the migration SQL files manually.
 
 ## ✅ Step 5: Verify Deployment
 
@@ -88,7 +88,7 @@ Or use the Neon Console SQL Editor to run the migration SQL files manually.
 
 - **Vercel Dashboard**: https://vercel.com/vovabehma-3461s-projects/calmsync
 - **Deployment URL**: https://calmsync-qws1brz2j-vovabehma-3461s-projects.vercel.app
-- **Neon Database**: https://console.neon.tech/
+- **Supabase Database**: https://supabase.com/dashboard
 - **Resend**: https://resend.com/
 - **Sentry**: https://sentry.io/
 
@@ -106,6 +106,6 @@ Or use the Neon Console SQL Editor to run the migration SQL files manually.
 
 ### Database Connection Issues?
 - Verify DATABASE_URL is correct
-- Check Neon database is running
+- Check Supabase database is running (may be paused on free tier - click Resume)
 - Ensure migrations have been applied
 

@@ -8,7 +8,7 @@ Before deploying, ensure you have:
 
 1. ✅ A GitHub account (your code is already on GitHub)
 2. ✅ A Vercel account (sign up at [vercel.com](https://vercel.com))
-3. ✅ A Neon PostgreSQL database (get one at [neon.tech](https://neon.tech))
+3. ✅ A Supabase PostgreSQL database (get one at [supabase.com](https://supabase.com))
 4. ✅ A Resend API key (get one at [resend.com](https://resend.com))
 5. ✅ (Optional) OpenAI API key for image generation
 6. ✅ (Optional) Sentry DSN for error monitoring
@@ -17,9 +17,9 @@ Before deploying, ensure you have:
 
 ### 1. Prepare Your Database
 
-1. Go to [Neon Console](https://console.neon.tech/)
+1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
 2. Create a new project (or use existing)
-3. Copy your connection string (it looks like: `postgresql://user:password@host.region.neon.tech/dbname?sslmode=require`)
+3. Copy your connection string from Project Settings → Database (it looks like: `postgresql://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres?sslmode=require`)
 4. **Important**: Run migrations on your production database:
    ```bash
    # Set your production DATABASE_URL temporarily
@@ -50,7 +50,7 @@ Before deploying, ensure you have:
    Add all the following variables (click "Add" for each):
 
    ```
-   DATABASE_URL=postgresql://user:password@host.region.neon.tech/dbname?sslmode=require
+   DATABASE_URL=postgresql://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres?sslmode=require
    NEXTAUTH_SECRET=your-super-secret-32-character-minimum-string
    NEXTAUTH_URL=https://your-app-name.vercel.app
    RESEND_API_KEY=re_your_api_key_here
@@ -111,8 +111,8 @@ After deployment, ensure your database is migrated:
    pnpm prisma migrate deploy
    ```
 
-2. **Option 2: Via Neon Console**
-   - Go to Neon Console → SQL Editor
+2. **Option 2: Via Supabase Console**
+   - Go to Supabase Dashboard → SQL Editor
    - Run the migration SQL files from `prisma/migrations/`
 
 ### 5. Verify Deployment
@@ -167,9 +167,9 @@ After deployment, ensure your database is migrated:
 ### Database Connection Issues
 
 - Verify `DATABASE_URL` is correct
-- Check Neon database is running
+- Check Supabase database is running
 - Ensure migrations have been applied
-- Check network connectivity from Vercel to Neon
+- Check network connectivity from Vercel to Supabase
 
 ### Images Not Generating
 
@@ -200,5 +200,5 @@ Vercel automatically deploys when you push to your main branch:
 
 - Vercel Docs: [vercel.com/docs](https://vercel.com/docs)
 - Next.js Deployment: [nextjs.org/docs/deployment](https://nextjs.org/docs/deployment)
-- Neon Docs: [neon.tech/docs](https://neon.tech/docs)
+- Supabase Docs: [supabase.com/docs](https://supabase.com/docs)
 

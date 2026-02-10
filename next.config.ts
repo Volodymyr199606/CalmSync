@@ -4,6 +4,13 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Hides source maps from generated client bundles
   productionBrowserSourceMaps: false,
+  
+  // Fix for Sentry/OpenTelemetry instrumentation packages
+  // These packages need to be external for proper server-side bundling
+  serverExternalPackages: [
+    'import-in-the-middle',
+    'require-in-the-middle',
+  ],
 };
 
 // Only enable Sentry if required environment variables are present

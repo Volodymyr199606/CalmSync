@@ -29,12 +29,17 @@ This guide will help you verify and configure your database connection for CalmS
 
 ## 2. Database Connection String Format
 
-### For Supabase:
+### For Supabase (Recommended):
+```
+postgresql://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres?sslmode=require
+```
+
+**Connection Pooling (for serverless/Vercel):**
 ```
 postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?sslmode=require
 ```
 
-### For Neon:
+### For Neon (legacy - not recommended):
 ```
 postgresql://[USER]:[PASSWORD]@[HOST].neon.tech/[DATABASE]?sslmode=require
 ```
@@ -54,7 +59,7 @@ postgresql://[USER]:[PASSWORD]@[HOST].neon.tech/[DATABASE]?sslmode=require
 3. Check if database shows as "Active" or "Running"
 4. Free tier databases may pause - click "Resume" if needed
 
-### Neon:
+### Neon (legacy):
 1. Go to https://console.neon.tech/
 2. Select your project
 3. Check project status
@@ -137,13 +142,19 @@ Run: `DATABASE_URL="your-url" node test-db.js`
 
 ## 6. Generate Connection String
 
-### Supabase:
-1. Go to Project Settings → Database
-2. Copy the "Connection string" under "Connection pooling"
-3. Replace `[YOUR-PASSWORD]` with your actual database password
-4. Add `?sslmode=require` at the end if not present
+### Supabase (Recommended):
+1. Go to Supabase Dashboard → Your Project
+2. Navigate to **Settings** → **Database**
+3. Under "Connection string", you'll see:
+   - **Direct connection** (port 5432) - for local development
+   - **Connection pooling** (port 6543) - recommended for serverless/Vercel
+4. Copy the appropriate connection string
+5. Replace `[YOUR-PASSWORD]` with your actual database password
+6. Add `?sslmode=require` at the end if not present
 
-### Neon:
+**Note**: For Vercel deployments, use the connection pooling URL to avoid connection exhaustion.
+
+### Neon (legacy - not recommended):
 1. Go to your project dashboard
 2. Click on your database
 3. Copy the connection string
@@ -195,7 +206,7 @@ Errors will appear in Vercel's function logs with prefixes:
 ## 10. Support Resources
 
 - **Supabase Docs**: https://supabase.com/docs/guides/database/connecting-to-postgres
-- **Neon Docs**: https://neon.tech/docs/connect/connect-from-any-app
+- **Neon Docs** (legacy): https://neon.tech/docs/connect/connect-from-any-app
 - **Prisma Docs**: https://www.prisma.io/docs/concepts/database-connectors/postgresql
 - **Vercel Docs**: https://vercel.com/docs/concepts/projects/environment-variables
 

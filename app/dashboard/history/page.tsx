@@ -103,14 +103,48 @@ export default async function HistoryPage() {
       redirect("/")
     }
 
-    // 2. Load user from database
-    const user = await prisma.user.findUnique({
-      where: { email: currentUser.email },
-      select: { id: true },
-    })
+    // 2. Try to load user from database (optional - app works without it)
+    let user;
+    let databaseAvailable = false;
+    try {
+      user = await prisma.user.findUnique({
+        where: { email: currentUser.email },
+        select: { id: true },
+      });
+      databaseAvailable = !!user;
+    } catch (dbError) {
+      // Database unavailable - continue with empty data
+      databaseAvailable = false;
+      // Silently handle connection errors - they're expected when DB is unavailable
+      const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
+      const isConnectionError = 
+        errorMessage.includes("Can't reach database server") ||
+        errorMessage.includes("P1001") ||
+        errorMessage.includes("connection") ||
+        errorMessage.includes("connect") ||
+        errorMessage.includes("timeout") ||
+        errorMessage.includes("ECONNREFUSED");
+      
+      if (!isConnectionError) {
+        console.warn('[HISTORY PAGE] Database error (showing empty state):', errorMessage);
+      }
+    }
 
-    if (!user) {
-      redirect("/")
+    if (!databaseAvailable || !user) {
+      // Show empty state when database is unavailable
+      return (
+        <HistoryClient
+          stats={{
+            totalSessions: 0,
+            avgCalmLevel: 0,
+            meditationHours: 0,
+            currentStreak: 0,
+          }}
+          moodDistribution={[]}
+          historyEntries={[]}
+          totalEntries={0}
+        />
+      );
     }
 
     const userId = user.id
@@ -284,14 +318,27 @@ export default async function HistoryPage() {
       />
     )
   } catch (error) {
-    console.error("[HISTORY PAGE] Error loading history:", error)
-    // Only redirect on actual errors, not empty states
-    // If it's a database connection issue or auth issue, redirect
-    // Otherwise, show the page with empty data
+    // Only log unexpected errors (not connection errors)
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isConnectionError = 
+      errorMessage.includes("Can't reach database server") ||
+      errorMessage.includes("P1001") ||
+      errorMessage.includes("connection") ||
+      errorMessage.includes("connect") ||
+      errorMessage.includes("timeout") ||
+      errorMessage.includes("ECONNREFUSED");
+    
+    // Only redirect on auth errors
     if (error instanceof Error && error.message.includes("auth")) {
       redirect("/")
     }
-    // For other errors, show empty state instead of redirecting
+    
+    // Only log unexpected errors (not connection errors)
+    if (!isConnectionError) {
+      console.error("[HISTORY PAGE] Error loading history:", error);
+    }
+    
+    // For all other errors (including connection errors), show empty state
     return (
       <HistoryClient
         stats={{

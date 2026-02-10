@@ -65,7 +65,7 @@ Per project rules, E2E tests should use realistic flows with real route handlers
 ## Future Implementation
 
 To fully implement these tests:
-1. Create test database on Neon (separate from dev/prod)
+1. Create test database on Supabase (separate from dev/prod)
 2. Implement `cy.seedDatabase()` and `cy.cleanupDatabase()` commands
 3. Add test auth endpoint or configure Resend with test mode
 4. Implement `cy.login()` helper for session management

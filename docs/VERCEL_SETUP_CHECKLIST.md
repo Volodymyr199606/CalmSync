@@ -37,7 +37,7 @@ postgresql://user:password@host:port/database?sslmode=require
 - Use **Connection Pooling** URL (port 6543) if available
 - Format: `postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?sslmode=require`
 
-**For Neon:**
+**For Neon (legacy):**
 - Get from: Neon Dashboard → Your Project → Connection String
 - Format: `postgresql://user:password@host.neon.tech/database?sslmode=require`
 
@@ -84,13 +84,14 @@ openssl rand -base64 32
 
 ### Step 5: Check Database Status
 
-**For Supabase:**
+**For Supabase (Recommended):**
 1. Go to Supabase Dashboard → Your Project
 2. Check if database shows "Active" status
-3. If paused (free tier), click "Resume"
+3. **Important**: If paused (free tier), click "Resume" to activate
 4. Verify you can connect to the database
+5. Check Project Settings → Database for connection details
 
-**For Neon:**
+**For Neon (legacy - not recommended):**
 1. Go to Neon Dashboard
 2. Check project status
 3. Verify database is not suspended

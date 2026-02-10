@@ -85,33 +85,25 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
 
     const requestData = validation.data;
 
-    // 3. Find user in database
+    // 3. Try to find user in database (optional - app works without it)
     let user;
+    let databaseAvailable = false;
     try {
       user = await prisma.user.findUnique({
         where: { email: currentUser.email },
         select: { id: true, email: true },
       });
+      databaseAvailable = true;
     } catch (dbError) {
-      // Check if DATABASE_URL is missing
-      if (!process.env.DATABASE_URL) {
-        logger.error('DATABASE_URL environment variable is missing', {
-          email: currentUser.email,
-          vercel: !!process.env.VERCEL,
-        });
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: 'Database configuration error. DATABASE_URL is not set. Please configure environment variables in Vercel.',
-            details: process.env.VERCEL 
-              ? 'Go to Vercel Dashboard → Settings → Environment Variables → Add DATABASE_URL'
-              : 'Set DATABASE_URL in your .env.local file',
-          },
-          { status: 503 }
-        );
-      }
-
-      // Check if it's a database connection error
+      // Database unavailable - continue without saving to database
+      // Use Supabase user ID as fallback
+      databaseAvailable = false;
+      user = {
+        id: currentUser.id,
+        email: currentUser.email,
+      };
+      
+      // Only log if it's not a connection error (those are expected when DB is unavailable)
       const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
       const isConnectionError = 
         errorMessage.includes("Can't reach database server") ||
@@ -121,37 +113,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
         errorMessage.includes("timeout") ||
         errorMessage.includes("ECONNREFUSED");
       
-      if (isConnectionError) {
-        logger.error('Database connection error', {
+      if (!isConnectionError) {
+        logger.warn('Database error (continuing without DB)', {
           email: currentUser.email,
           error: errorMessage,
-          hasDatabaseUrl: !!process.env.DATABASE_URL,
         });
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: 'Database connection error. Please check your database configuration.',
-            details: process.env.NODE_ENV === 'development' 
-              ? errorMessage
-              : process.env.VERCEL
-              ? 'Verify DATABASE_URL is correctly set in Vercel environment variables'
-              : undefined,
-          },
-          { status: 503 }
-        );
       }
-      // Re-throw other database errors
-      throw dbError;
-    }
-
-    if (!user) {
-      logger.error('Authenticated user not found in database', {
-        email: currentUser.email,
-      });
-      return NextResponse.json(
-        { success: false, error: 'User not found' },
-        { status: 404 }
-      );
     }
 
     // 4. Determine feeling and severity
@@ -160,6 +127,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     let moodCheckInId: string | null = null;
 
     if ('moodCheckInId' in requestData) {
+      if (!databaseAvailable) {
+        // Can't load from database if it's unavailable
+        return NextResponse.json(
+          { success: false, error: 'Database unavailable. Please provide feeling and severity directly.' },
+          { status: 503 }
+        );
+      }
+      
       // Load mood from database
       const moodCheckIn = await prisma.moodCheckIn.findUnique({
         where: {
@@ -212,125 +187,167 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       itemCount: experience.items.length,
     });
 
-    // 6. Create RelaxationSession in database
-    const relaxationSession = await prisma.relaxationSession.create({
-      data: {
+    // 6. Save to database if available, otherwise generate response without saving
+    let responseSession: RelaxationSession;
+    let sessionItemsData: SessionItem[];
+
+    if (databaseAvailable) {
+      // Create RelaxationSession in database
+      const relaxationSession = await prisma.relaxationSession.create({
+        data: {
+          userId: user.id,
+          moodCheckInId: moodCheckInId || undefined,
+          feeling,
+          severity,
+          primaryContentType: experience.primaryType,
+          durationMinutes: experience.sessionDurationMinutes,
+        },
+      });
+
+      // 7. Ensure all content items exist in database (or create them)
+      // This is needed because SessionItem references ContentItem via contentItemId
+      const sessionItemsCreateData = [];
+      const contentItemsMap = new Map<number, { dbItem: any; contentItem: any }>();
+      
+      for (let i = 0; i < experience.items.length; i++) {
+        const contentItem = experience.items[i];
+        
+        // Check if content item exists in database
+        let dbContentItem = await prisma.contentItem.findFirst({
+          where: {
+            title: contentItem.title,
+            type: contentItem.type,
+          },
+        });
+
+        // Create or update content item to ensure URL is current
+        if (!dbContentItem) {
+          dbContentItem = await prisma.contentItem.create({
+            data: {
+              type: contentItem.type,
+              title: contentItem.title,
+              url: contentItem.url || null,
+              content: contentItem.content || null,
+              description: contentItem.description || null,
+              feeling: contentItem.feeling,
+              tags: contentItem.tags,
+            },
+          });
+        } else {
+          // Update existing item to use latest URL from content library
+          dbContentItem = await prisma.contentItem.update({
+            where: { id: dbContentItem.id },
+            data: {
+              url: contentItem.url || null,
+              description: contentItem.description || null,
+              tags: contentItem.tags,
+            },
+          });
+        }
+
+        // Store mapping for later
+        contentItemsMap.set(i, { dbItem: dbContentItem, contentItem });
+
+        // Prepare session item data for batch creation
+        sessionItemsCreateData.push({
+          relaxationSessionId: relaxationSession.id,
+          contentItemId: dbContentItem.id,
+          orderIndex: i,
+        });
+      }
+
+      // 8. Create all session items in batch
+      await prisma.sessionItem.createMany({
+        data: sessionItemsCreateData,
+      });
+
+      // 9. Fetch created session items to build response
+      const createdSessionItems = await prisma.sessionItem.findMany({
+        where: { relaxationSessionId: relaxationSession.id },
+        orderBy: { orderIndex: 'asc' },
+      });
+
+      // Build response items array
+      // IMPORTANT: Use URL from contentItem (content library) not dbItem (database)
+      // This ensures we always use the latest URLs even if database has old ones
+      sessionItemsData = createdSessionItems.map(sessionItem => {
+        const mapEntry = contentItemsMap.get(sessionItem.orderIndex);
+        if (!mapEntry) {
+          logger.error('Missing content item mapping', {
+            orderIndex: sessionItem.orderIndex,
+            sessionId: relaxationSession.id,
+          });
+          throw new Error(`Missing content item mapping for orderIndex ${sessionItem.orderIndex}`);
+        }
+        const { dbItem, contentItem } = mapEntry;
+        return {
+          id: sessionItem.id,
+          sessionId: relaxationSession.id,
+          contentType: dbItem.type,
+          contentId: dbItem.id,
+          title: dbItem.title,
+          url: contentItem.url || dbItem.url, // Use URL from content library (source of truth)
+          description: dbItem.description,
+          duration: contentItem.durationSeconds || null,
+          orderIndex: sessionItem.orderIndex,
+        };
+      });
+
+      logger.info('Relaxation session saved to database', {
         userId: user.id,
-        moodCheckInId: moodCheckInId || undefined,
+        sessionId: relaxationSession.id,
+        itemsCreated: sessionItemsData.length,
+      });
+
+      // Format response session
+      responseSession = {
+        id: relaxationSession.id,
+        userId: relaxationSession.userId,
+        moodCheckInId: relaxationSession.moodCheckInId,
+        feeling: relaxationSession.feeling as Feeling,
+        severity: relaxationSession.severity,
+        primaryContentType: relaxationSession.primaryContentType,
+        durationMinutes: relaxationSession.durationMinutes,
+        completedAt: relaxationSession.completedAt,
+        createdAt: relaxationSession.startedAt,
+      };
+    } else {
+      // Database unavailable - generate response without saving
+      // Generate a temporary session ID
+      const tempSessionId = `temp-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+      
+      responseSession = {
+        id: tempSessionId,
+        userId: user.id,
+        moodCheckInId: moodCheckInId,
         feeling,
         severity,
         primaryContentType: experience.primaryType,
         durationMinutes: experience.sessionDurationMinutes,
-      },
-    });
+        completedAt: null,
+        createdAt: new Date(),
+      };
 
-    // 7. Ensure all content items exist in database (or create them)
-    // This is needed because SessionItem references ContentItem via contentItemId
-    const sessionItemsCreateData = [];
-    const contentItemsMap = new Map<number, { dbItem: any; contentItem: any }>();
-    
-    for (let i = 0; i < experience.items.length; i++) {
-      const contentItem = experience.items[i];
-      
-      // Check if content item exists in database
-      let dbContentItem = await prisma.contentItem.findFirst({
-        where: {
-          title: contentItem.title,
-          type: contentItem.type,
-        },
-      });
+      // Build session items from experience directly (without database)
+      sessionItemsData = experience.items.map((contentItem, index) => ({
+        id: `temp-${index}-${Date.now()}`,
+        sessionId: tempSessionId,
+        contentType: contentItem.type,
+        contentId: `temp-content-${index}`,
+        title: contentItem.title,
+        url: contentItem.url || null,
+        description: contentItem.description || null,
+        duration: contentItem.durationSeconds || null,
+        orderIndex: index,
+      }));
 
-      // Create or update content item to ensure URL is current
-      if (!dbContentItem) {
-        dbContentItem = await prisma.contentItem.create({
-          data: {
-            type: contentItem.type,
-            title: contentItem.title,
-            url: contentItem.url || null,
-            content: contentItem.content || null,
-            description: contentItem.description || null,
-            feeling: contentItem.feeling,
-            tags: contentItem.tags,
-          },
-        });
-      } else {
-        // Update existing item to use latest URL from content library
-        dbContentItem = await prisma.contentItem.update({
-          where: { id: dbContentItem.id },
-          data: {
-            url: contentItem.url || null,
-            description: contentItem.description || null,
-            tags: contentItem.tags,
-          },
-        });
-      }
-
-      // Store mapping for later
-      contentItemsMap.set(i, { dbItem: dbContentItem, contentItem });
-
-      // Prepare session item data for batch creation
-      sessionItemsCreateData.push({
-        relaxationSessionId: relaxationSession.id,
-        contentItemId: dbContentItem.id,
-        orderIndex: i,
+      logger.info('Relaxation experience generated without database', {
+        userId: user.id,
+        feeling,
+        severity,
+        itemCount: sessionItemsData.length,
       });
     }
-
-    // 8. Create all session items in batch
-    await prisma.sessionItem.createMany({
-      data: sessionItemsCreateData,
-    });
-
-    // 9. Fetch created session items to build response
-    const createdSessionItems = await prisma.sessionItem.findMany({
-      where: { relaxationSessionId: relaxationSession.id },
-      orderBy: { orderIndex: 'asc' },
-    });
-
-    // Build response items array
-    // IMPORTANT: Use URL from contentItem (content library) not dbItem (database)
-    // This ensures we always use the latest URLs even if database has old ones
-    const sessionItemsData: SessionItem[] = createdSessionItems.map(sessionItem => {
-      const mapEntry = contentItemsMap.get(sessionItem.orderIndex);
-      if (!mapEntry) {
-        logger.error('Missing content item mapping', {
-          orderIndex: sessionItem.orderIndex,
-          sessionId: relaxationSession.id,
-        });
-        throw new Error(`Missing content item mapping for orderIndex ${sessionItem.orderIndex}`);
-      }
-      const { dbItem, contentItem } = mapEntry;
-      return {
-        id: sessionItem.id,
-        sessionId: relaxationSession.id,
-        contentType: dbItem.type,
-        contentId: dbItem.id,
-        title: dbItem.title,
-        url: contentItem.url || dbItem.url, // Use URL from content library (source of truth)
-        description: dbItem.description,
-        duration: contentItem.durationSeconds || null,
-        orderIndex: sessionItem.orderIndex,
-      };
-    });
-
-    logger.info('Relaxation session saved to database', {
-      userId: user.id,
-      sessionId: relaxationSession.id,
-      itemsCreated: sessionItemsData.length,
-    });
-
-    // 10. Format and return structured response
-    const responseSession: RelaxationSession = {
-      id: relaxationSession.id,
-      userId: relaxationSession.userId,
-      moodCheckInId: relaxationSession.moodCheckInId,
-      feeling: relaxationSession.feeling as Feeling,
-      severity: relaxationSession.severity,
-      primaryContentType: relaxationSession.primaryContentType,
-      durationMinutes: relaxationSession.durationMinutes,
-      completedAt: relaxationSession.completedAt,
-      createdAt: relaxationSession.startedAt,
-    };
 
     return NextResponse.json(
       {

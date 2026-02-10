@@ -6,7 +6,7 @@
 - **Styling/UI**: Tailwind CSS v4 plus shadcn/ui primitives; no alternative UI kits.
 - **Tooling**: ESLint v9 is the linting baseline.
 - **Backend**: Next.js route handlers only; Prisma is the sole ORM.
-- **Database**: PostgreSQL only, hosted on Neon (no other DB providers). Use the Neon-provided `DATABASE_URL` in `.env.local`.
+- **Database**: PostgreSQL only, hosted on Supabase (no other DB providers). Use the Supabase-provided `DATABASE_URL` in `.env.local`.
 - **Testing**: Vitest with @testing-library/react for frontend and utility coverage.
 - **Auth**: Prefer Auth.js (NextAuth) in route handlers; fallback JWT must use HTTP-only cookies and never touch localStorage.
 - **Infra**: GitHub for version control, Vercel for deployment (frontend + API), Sentry for monitoring.

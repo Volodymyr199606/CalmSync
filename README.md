@@ -7,7 +7,7 @@ Your personal relaxation companion - a mood-based relaxation experience generato
 - **Framework**: Next.js 16+ (App Router)
 - **Language**: TypeScript (strict mode)
 - **Styling**: Tailwind CSS v4 + shadcn/ui
-- **Database**: PostgreSQL (Neon)
+- **Database**: PostgreSQL (Supabase)
 - **ORM**: Prisma
 - **Testing**: Vitest + @testing-library/react
 - **Auth**: NextAuth.js (Magic Link via Resend)
@@ -21,7 +21,7 @@ Your personal relaxation companion - a mood-based relaxation experience generato
 
 - Node.js 18+
 - pnpm
-- PostgreSQL database (Neon recommended)
+- PostgreSQL database (Supabase recommended)
 
 ### Installation
 
@@ -37,7 +37,7 @@ pnpm install
 ```
 
 3. Follow the detailed setup instructions in [QUICKSTART.md](./QUICKSTART.md) to:
-   - Configure your PostgreSQL database (Neon recommended)
+   - Configure your PostgreSQL database (Supabase recommended)
    - Set up Resend for magic link emails
    - Configure environment variables
    - Run database migrations
