@@ -103,6 +103,16 @@ export async function submitEmail(formData: FormData) {
           error: "Authentication session expired. Please try again. If this persists, try clearing your browser cookies." 
         };
       }
+
+      if (
+        error.message?.toLowerCase().includes("rate limit") ||
+        error.message?.toLowerCase().includes("email rate limit")
+      ) {
+        return {
+          error:
+            "Too many login emails were sent recently. Wait about an hour and try again, or ask the app owner to enable custom SMTP in Supabase (e.g. Resend) for higher limits.",
+        };
+      }
       
       return { error: error.message || "Failed to send magic link. Please try again." };
     }
@@ -110,11 +120,23 @@ export async function submitEmail(formData: FormData) {
     console.log("[AUTH ACTION] Magic link sent successfully to:", email);
     return { success: true, email };
   } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
     console.error("[AUTH ACTION] Unexpected error:", {
-      error: error instanceof Error ? error.message : String(error),
+      error: message,
       errorType: error instanceof Error ? error.constructor.name : typeof error,
     });
-    
+
+    if (
+      message.toLowerCase().includes("fetch failed") ||
+      message.toLowerCase().includes("econnrefused") ||
+      message.toLowerCase().includes("network")
+    ) {
+      return {
+        error:
+          "Cannot reach the authentication service. If you recently renewed Supabase, update NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel and redeploy.",
+      };
+    }
+
     return { error: "Failed to send magic link. Please try again." };
   }
 }
