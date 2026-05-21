@@ -2,55 +2,53 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+
+  // Only run auth check on protected routes — avoids Supabase round-trip on every page
+  // (fixes MIDDLEWARE_INVOCATION_TIMEOUT on Vercel edge)
+  if (!pathname.startsWith('/dashboard')) {
+    return NextResponse.next()
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
-        },
-      },
-    }
-  )
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  // Refresh session if expired - required for Server Components
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return NextResponse.redirect(new URL('/', request.url))
+  }
+
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll()
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+        supabaseResponse = NextResponse.next({
+          request,
+        })
+        cookiesToSet.forEach(({ name, value, options }) =>
+          supabaseResponse.cookies.set(name, value, options)
+        )
+      },
+    },
+  })
+
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const isOnDashboard = request.nextUrl.pathname.startsWith("/dashboard");
-  const isOnRoot = request.nextUrl.pathname === "/";
-
-  // Redirect unauthenticated users away from protected routes
-  if (isOnDashboard && !user) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
-  // Always allow access to root page - never redirect away from it
-  // Both authenticated and unauthenticated users should see the landing page
-  if (isOnRoot) {
-    return supabaseResponse;
+  if (!user) {
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
   return supabaseResponse
 }
 
 export const config = {
-  // Exclude auth callback from middleware - let it handle auth flow independently
-  // This is important for mobile browsers to properly handle PKCE flow
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|auth).*)"],
-};
+  matcher: ['/dashboard/:path*'],
+}
